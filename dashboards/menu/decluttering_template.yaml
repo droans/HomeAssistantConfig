@@ -1,0 +1,172 @@
+decluttering_templates:
+  menu:
+    default:
+      icon_color_1_1: none
+      style_1_1: ''
+      icon_color_1_2: none
+      style_1_2: ''
+      icon_color_1_3: none
+      style_1_3: ''
+      icon_color_2_1: none
+      style_2_1: ''
+      icon_color_2_2: none
+      style_2_2: ''
+      icon_color_2_3: none
+      style_2_3: ''
+      icon_color_3_1: none
+      style_3_1: ''
+      icon_color_3_2: none
+      style_3_2: ''
+      icon_color_3_3: none
+      style_3_3: ''
+    card:
+      type: custom:stack-in-card
+      cards:
+        - type: custom:layout-card
+          layout_type: custom:grid-layout
+          cards:
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: hue:downstairs
+                  content: Downstairs
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/downstairs
+                  icon_color: '[[icon_color_1_1]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_1_1]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:home-heart
+                  content: Home
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/home
+                  icon_color: '[[icon_color_1_2]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_1_2]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: hue:upstairs
+                  content: Upstairs
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/upstairs
+                  icon_color: '[[icon_color_1_3]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_1_3]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:note-edit
+                  content: Automations
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/automations
+                  icon_color: '[[icon_color_2_1]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_2_1]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:cctv
+                  content: Cameras
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/cameras
+                  icon_color: '[[icon_color_2_2]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_2_2]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  content: 3D Printer
+                  icon: mdi:printer-3d-nozzle
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/3d-printer
+                  icon_color: '[[icon_color_2_3]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_2_3]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:weather-sunny
+                  content: Weather
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/weather
+                  icon_color: '[[icon_color_3_1]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_3_1]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:information
+                  content: Misc
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/info-panel
+                  icon_color: '[[icon_color_3_2]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_3_2]]
+                      }
+            - type: custom:mushroom-chips-card
+              chips:
+                - type: template
+                  icon: mdi:leaf-circle-outline
+                  content: Air Quality
+                  tap_action:
+                    action: navigate
+                    navigation_path: /lovelace/air-quality
+                  icon_color: '[[icon_color_3_3]]'
+                  card_mod:
+                    style: |
+                      :host {
+                        [[style_3_3]]
+                      }
+          layout:
+            grid-template-columns: 37% 26% 37%
+            place-items: center
+        - type: markdown
+          content: <hr>
+          card_mod:
+            style:
+              ha-markdown $: |
+                hr {
+                  background-color: var(--divider-background-color);
+                  height: 1px;
+                  border: none;
+                }
+              .: |
+                ha-card {
+                  --ha-card-box-shadow: 0px 0px 0px 0px rgba(0,0,0,0);
+                  --ha-card-background: var(--primary-background-color);
+                  --ha-card-text-color: black;
+                  }

@@ -1,0 +1,8 @@
+# Menu card for frontend
+# Paste this card into each page that you want the menu.
+# Adjust the names of `icon_color_X_Y` and `style_X_Y` to correspond with the selected option where X refers to the row and Y refers to the column.
+type: custom:decluttering-card
+template: menu
+variables:
+  - icon_color_1_2: blue
+  - style_1_2: '--chip-background: var(--active-chip-background);'
