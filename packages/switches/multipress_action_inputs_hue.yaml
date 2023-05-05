@@ -1,0 +1,212 @@
+# Inputs to adjust the actions for the multipress sensors
+# All files in this directory are designed to be used together. I will not diagnose issues you may run into otherwise.
+# 
+# Allows for the switch actions to be changed in the frontend by the user
+# No buttons except ON are setup for multipress actions in my setup. This can be changed by the user, though.
+#
+# Substitutes:
+# Substitutes:
+#   * ENTITY_ID_enable: Input to enable the switch
+#   * ENTITY_ID_XXXX_action: The action to be performed with the switch selected
+#   * ENTITY_ID_XXXX_entity: The entity to perform the action on
+#   * ENTITY_ID_XXXX_color: If any Set Color actions are selected, this will allow the user to select the color
+#   * ENTITY_ID_XXXX_brightness: If any Set Brightness actions are selected, this will allow the user to select the brightness
+#   * ENTITY_ID_XXXX_white_balance: If any Set Temperature actions are selected, this will allow the user to select the white balance
+#   * FRIENDLY NAME: The name given to the inputs
+#   * /path/to/multipress_action_options.yaml: The path to the file including the action options. Save this outside of your packages directory
+
+input_boolean:
+  ENTITY_ID_enable:
+    name: FRIENDLY NAME Switch
+
+input_select:
+  ENTITY_ID_down_action:
+    name: FRIENDLY NAME 'Down' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_up_action:
+    name: FRIENDLY NAME 'Up' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_on_action:
+    name: FRIENDLY NAME 'On' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_on_press_2x_action:
+    name: FRIENDLY NAME 'On' 2x Press Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_on_press_3x_action:
+    name: FRIENDLY NAME 'On' 3x Press Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_on_press_4x_action:
+    name: FRIENDLY NAME 'On' 4x Press Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_on_press_5x_action:
+    name: FRIENDLY NAME 'On' 5x Press Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_off_action:
+    name: FRIENDLY NAME 'Off' Action
+    options: !include /path/to/multipress_action_options.yaml
+
+  ENTITY_ID_down_color:
+    name: FRIENDLY NAME 'Down' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_up_color:
+    name: FRIENDLY NAME 'Up' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_on_color:
+    name: FRIENDLY NAME 'On' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_on_press_2x_color:
+    name: FRIENDLY NAME 'On' 2x Press Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_on_press_3x_color:
+    name: FRIENDLY NAME 'On' 3x Press Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_on_press_4x_color:
+    name: FRIENDLY NAME 'On' 4x Press Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_on_press_5x_color:
+    name: FRIENDLY NAME 'On' 5x Press Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_off_color:
+    name: FRIENDLY NAME 'Off' Action
+    options: !include /path/to/multipress_light_options.yaml
+
+  ENTITY_ID_down_entity:
+    name: FRIENDLY NAME 'Down' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_up_entity:
+    name: FRIENDLY NAME 'Up' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_on_entity:
+    name: FRIENDLY NAME 'On' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_on_2x_entity:
+    name: FRIENDLY NAME Switch 'On' 2x Press Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_on_3x_entity:
+    name: FRIENDLY NAME Switch 'On' 3x Press Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_on_4x_entity:
+    name: FRIENDLY NAME Switch 'On' 4x Press Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_on_5x_entity:
+    name: FRIENDLY NAME Switch 'On' 5x Press Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_off_entity:
+    name: FRIENDLY NAME 'Off' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+
+input_number:
+  ENTITY_ID_down_brightness:
+    name: FRIENDLY NAME 'Down' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_up_brightness:
+    name: FRIENDLY NAME 'Up' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_on_brightness:
+    name: FRIENDLY NAME 'On' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_on_press_2x_brightness:
+    name: FRIENDLY NAME 'On' 2x Press Action
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_on_press_3x_brightness:
+    name: FRIENDLY NAME 'On' 3x Press Action
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_on_press_4x_brightness:
+    name: FRIENDLY NAME 'On' 4x Press Action
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_on_press_5x_brightness:
+    name: FRIENDLY NAME 'On' 5x Press Action
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_off_brightness:
+    name: FRIENDLY NAME 'Off' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+
+  ENTITY_ID_down_white_balance:
+    name: FRIENDLY NAME 'Down' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_up_white_balance:
+    name: FRIENDLY NAME 'Up' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_on_white_balance:
+    name: FRIENDLY NAME 'On' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_on_press_2x_white_balance:
+    name: FRIENDLY NAME 'On' 2x Press  Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_on_press_3x_white_balance:
+    name: FRIENDLY NAME 'On' 3x Press  Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_on_press_4x_white_balance:
+    name: FRIENDLY NAME 'On' 4x Press  Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_on_press_5x_white_balance:
+    name: FRIENDLY NAME 'On' 5x Press  Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_off_white_balance:
+    name: FRIENDLY NAME 'Off' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+

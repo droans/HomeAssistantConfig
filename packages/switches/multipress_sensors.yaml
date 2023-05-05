@@ -1,0 +1,83 @@
+# Template multi-press sensor for buttons
+# All files in this directory are designed to be used together. I will not diagnose issues you may run into otherwise.
+# 
+# Tested with Ikea and Hue remotes running in Z2M where presses are reported as an immediate state change followed by an empty string
+# Reports 1x-5x presses as long as each press occurs within 5 seconds of the previous press. 
+# If the number of presses or the time between presses are over the limit, the counter resets to one.
+# The number of presses or time between presses can be adjusted as desired by changing max_time_between_presses and max_press_count respectively
+# Can be used to replicate OEM capabilities such as with Philips Hue
+# 
+# Substitutes:
+#   * sensor.ENTITY_switch_action: Sensor entity that reports the button action
+#   * FRIENDLY NAME Last Action: Name given to the new sensor
+#   * UNIQUE_ID_last_action: Unique ID given to the new sensor
+
+template:
+  - trigger: 
+    - platform: state
+      entity_id:
+        - sensor.ENTITY_switch_action
+      from: ''
+    - platform: state
+      entity_id:
+        - sensor.ENTITY_switch_action
+      from: none
+    - platform: state
+      entity_id:
+        - sensor.ENTITY_switch_action
+      from: "None"
+    sensor:
+      - name:  FRIENDLY_NAME Switch Last Action
+        unique_id: UNIQUE_ID_last_action
+        state: >-
+          {% set st = trigger.to_state.state %}
+          {% if st is not none %}
+            {% if st not in ['','unavailable','unknown'] %}
+              {{ trigger.to_state.state }}
+            {% else %}
+              {{ trigger.from_state.state }}
+            {% endif %}
+          {% else %}
+            ''
+          {% endif %}
+        attributes:
+          last_updated: >-
+            {{ as_timestamp(now()) }}
+          prior_state: >-
+            {% set result = this.state %}
+            {{ result }}
+          press_count: >-
+            {% set return_result = true %}
+            {% set current_action = trigger.to_state.state %}
+            {% set max_delay_between_presses = 5 %}
+            {% set max_press_count = 5 %}
+            {% if 'prior_state' in this.attributes %}
+              {% set previous_action = this.state %}
+            {% else %}
+              {% set return_result = false %}
+            {% endif %}
+            {% if 'last_updated' in this.attributes %}
+              {% set last_update = this.attributes.last_updated %}
+            {% else %}
+              {% set return_result = false %}
+            {% endif %}
+            {% if return_result %}
+              {% if 'attributes' not in this %}
+                {% set return_result = false %}
+              {% else %}
+                {% if as_timestamp(now()) - last_update < max_delay_between_presses and current_action == previous_action %}
+                  {% set result = (this.attributes.press_count | int(0)) + 1 %}
+                  {% if result > max_press_count %}
+                    {% set result = 1 %}
+                  {% endif %}
+                {% else %}
+                  {% set return_result = false %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+
+            {% if return_result %}
+              {{ result }}
+            {% else %}
+              1
+            {% endif %}

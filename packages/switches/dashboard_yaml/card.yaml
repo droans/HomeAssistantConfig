@@ -1,0 +1,86 @@
+# The card displayed in the frontend of your dashboard.
+# 
+# Substitutes:
+# IKEA FRIENDLY NAME Switch: The name selected in the 
+type: custom:stack-in-card
+card_mod:
+  style: |
+    ha-card {
+      overflow: visible !important;
+    }
+cards:
+  - type: custom:decluttering-card
+    template: tradfri_switch
+    variables:
+      - select_option: IKEA FRIENDLY NAME Switch
+      - enabler: input_boolean.IKEA_ENTITY_ID_switch
+      - toggle_action: input_select.IKEA_ENTITY_ID_switch_toggle_action
+      - toggle_entity: input_select.IKEA_ENTITY_ID_switch_toggle_entity
+      - toggle_brightness: input_number.IKEA_ENTITY_ID_switch_toggle_brightness
+      - toggle_color: input_select.IKEA_ENTITY_ID_switch_toggle_color
+      - toggle_white_balance: input_number.IKEA_ENTITY_ID_switch_toggle_white_balance
+      - left_entity: input_select.IKEA_ENTITY_ID_switch_left_entity
+      - left_action: input_select.IKEA_ENTITY_ID_switch_left_action
+      - left_brightness: input_number.IKEA_ENTITY_ID_switch_left_brightness
+      - left_color: input_select.IKEA_ENTITY_ID_switch_left_color
+      - left_white_balance: input_number.IKEA_ENTITY_ID_switch_left_white_balance
+      - right_entity: input_select.IKEA_ENTITY_ID_switch_right_entity
+      - right_action: input_select.IKEA_ENTITY_ID_switch_right_action
+      - right_brightness: input_number.IKEA_ENTITY_ID_switch_right_brightness
+      - right_color: input_select.IKEA_ENTITY_ID_switch_right_color
+      - right_white_balance: input_number.IKEA_ENTITY_ID_switch_right_white_balance
+      - brightness_up_entity: input_select.IKEA_ENTITY_ID_switch_brightness_up_entity
+      - brightness_up_action: input_select.IKEA_ENTITY_ID_switch_brightness_up_action
+      - brightness_up_brightness: input_number.IKEA_ENTITY_ID_switch_brightness_up_brightness
+      - brightness_up_color: input_select.IKEA_ENTITY_ID_switch_brightness_up_color
+      - brightness_up_white_balance: input_number.IKEA_ENTITY_ID_switch_brightness_up_white_balance
+      - brightness_down_entity: input_select.IKEA_ENTITY_ID_switch_brightness_down_entity
+      - brightness_down_action: input_select.IKEA_ENTITY_ID_switch_brightness_down_action
+      - brightness_down_brightness: input_number.IKEA_ENTITY_ID_switch_brightness_down_brightness
+      - brightness_down_color: input_select.IKEA_ENTITY_ID_switch_brightness_down_color
+      - brightness_down_white_balance: input_number.IKEA_ENTITY_ID_switch_brightness_down_white_balance
+  - type: custom:decluttering-card
+    template: hue_switch
+    variables:
+      - select_option: HUE FRIENDLY NAME Switch
+      - enabler: input_boolean.HUE_ENTITY_ID_switch
+      - on_action: input_select.HUE_ENTITY_ID_switch_on_action
+      - on_entity: input_select.HUE_ENTITY_ID_switch_on_entity
+      - on_brightness: input_number.HUE_ENTITY_ID_switch_on_brightness
+      - on_color: input_select.HUE_ENTITY_ID_switch_on_color
+      - on_white_balance: input_number.HUE_ENTITY_ID_switch_on_white_balance
+      - on_2x_action: input_select.HUE_ENTITY_ID_switch_on_press_2x_action
+      - on_2x_entity: input_select.central_bed_switch_on_2x_entity
+      - on_2x_brightness: input_number.HUE_ENTITY_ID_switch_on_press_2x_brightness
+      - on_2x_color: input_select.HUE_ENTITY_ID_switch_on_press_2x_color
+      - on_2x_white_balance: input_number.HUE_ENTITY_ID_switch_on_press_2x_white_balance
+      - on_3x_action: input_select.HUE_ENTITY_ID_switch_on_press_3x_action
+      - on_3x_entity: input_select.central_bed_switch_on_3x_entity
+      - on_3x_brightness: input_number.HUE_ENTITY_ID_switch_on_press_3x_brightness
+      - on_3x_color: input_select.HUE_ENTITY_ID_switch_on_press_3x_color
+      - on_3x_white_balance: input_number.HUE_ENTITY_ID_switch_on_press_3x_white_balance
+      - on_4x_action: input_select.HUE_ENTITY_ID_switch_on_press_4x_action
+      - on_4x_entity: input_select.central_bed_switch_on_4x_entity
+      - on_4x_brightness: input_number.HUE_ENTITY_ID_switch_on_press_4x_brightness
+      - on_4x_color: input_select.HUE_ENTITY_ID_switch_on_press_4x_color
+      - on_4x_white_balance: input_number.HUE_ENTITY_ID_switch_on_press_4x_white_balance
+      - on_5x_action: input_select.HUE_ENTITY_ID_switch_on_press_5x_action
+      - on_5x_entity: input_select.central_bed_switch_on_5x_entity
+      - on_5x_brightness: input_number.HUE_ENTITY_ID_switch_on_press_5x_brightness
+      - on_5x_color: input_select.HUE_ENTITY_ID_switch_on_press_5x_color
+      - on_5x_white_balance: input_number.HUE_ENTITY_ID_switch_on_press_5x_white_balance
+      - off_entity: input_select.HUE_ENTITY_ID_switch_off_entity
+      - off_action: input_select.HUE_ENTITY_ID_switch_off_action
+      - off_brightness: input_number.HUE_ENTITY_ID_switch_off_brightness
+      - off_color: input_select.HUE_ENTITY_ID_switch_off_color
+      - off_white_balance: input_number.HUE_ENTITY_ID_switch_off_white_balance
+      - up_entity: input_select.HUE_ENTITY_ID_switch_up_entity
+      - up_action: input_select.HUE_ENTITY_ID_switch_up_action
+      - up_brightness: input_number.HUE_ENTITY_ID_switch_up_brightness
+      - up_color: input_select.HUE_ENTITY_ID_switch_up_color
+      - up_white_balance: input_number.HUE_ENTITY_ID_switch_up_white_balance
+      - down_entity: input_select.HUE_ENTITY_ID_switch_down_entity
+      - down_action: input_select.HUE_ENTITY_ID_switch_down_action
+      - down_brightness: input_number.HUE_ENTITY_ID_switch_down_brightness
+      - down_color: input_select.HUE_ENTITY_ID_switch_down_color
+      - down_white_balance: input_number.HUE_ENTITY_ID_switch_down_white_balance

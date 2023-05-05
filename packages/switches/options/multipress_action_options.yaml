@@ -1,0 +1,14 @@
+# Store outside of the packages directory, such as at /config/const.
+# To save space and avoid repetition, these are inserted to the action_inputs files using !include
+
+- 'None'
+- Turn on
+- Turn Off
+- Turn Up
+- Turn Down
+- Toggle
+- Set Brightness
+- Set Color
+- Set White Temperature
+- Set Light Brightness and Color
+- Set Light Brightness and Temperature

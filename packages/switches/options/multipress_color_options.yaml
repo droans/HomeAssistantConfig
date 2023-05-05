@@ -1,0 +1,14 @@
+# Store outside of the packages directory, such as at /config/const.
+# To save space and avoid repetition, these are inserted to the action_inputs files using !include
+#
+# You can add or remove colors at will
+
+- Blue
+- Light Blue
+- Green
+- Lime
+- Yellow
+- Orange
+- Red
+- Purple
+- Pink

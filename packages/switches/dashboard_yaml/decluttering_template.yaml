@@ -1,0 +1,388 @@
+decluttering_templates:
+  switch_header_card:
+    card:
+      type: custom:stack-in-card
+      mode: horizontal
+      cards:
+        - type: custom:mushroom-select-card
+          entity: input_select.switch_options
+          primary_info: name
+          secondary_info: none
+          name: 'Switch:'
+          layout: vertical
+          fill_container: true
+        - type: custom:mushroom-template-card
+          primary: |-
+            {% if states('[[enabler]]') == 'on' %}
+              Enabled
+            {% else %} 
+              Disabled
+            {% endif %}
+          secondary: |-
+            {% if states('[[enabler]]') == 'on' %}
+              Tap to disable
+            {% else %} 
+              Tap to enable
+            {% endif %}
+          icon: '[[icon]]'
+          entity: '[[enabler]]'
+          icon_color: |-
+            {% if states('[[enabler]]') == 'on' %}
+              green 
+            {% else %} 
+              grey
+            {% endif %}
+          tap_action:
+            action: toggle
+          hold_action:
+            action: more-info
+          layout: vertical
+          fill_container: true
+      card_mod:
+        style: |
+          ha-card {
+            overflow: visible !important;
+          }
+  hue_switch:
+    card:
+      type: conditional
+      conditions:
+        - entity: input_select.switch_options
+          state: '[[select_option]]'
+      card:
+        type: custom:stack-in-card
+        card_mod:
+          style:
+            div:
+              hui-vertical-stack-card:
+                $:
+                  div#root:
+                    fold-entity-row:
+                      $: |
+                        div#items {
+                            padding-left: 10px !important;
+                          }
+            .: |
+              ha-card {
+                overflow: visible !important;
+              }
+        cards:
+          - type: custom:decluttering-card
+            template: switch_header_card
+            variables:
+              - enabler: '[[enabler]]'
+              - icon: hue:dimmer-switch
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: On Button
+            entities:
+              - type: custom:stack-in-card
+                card_mod:
+                  style:
+                    div:
+                      hui-vertical-stack-card:
+                        $:
+                          div#root:
+                            fold-entity-row:
+                              $: |
+                                div#items {
+                                    padding-left: 10px !important;
+                                  }
+                    .: |
+                      ha-card {
+                        overflow: visible !important;
+                      }
+                cards:
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: 1x Press
+                    entities:
+                      - type: custom:decluttering-card
+                        template: switch_action_select_card
+                        variables:
+                          - action: '[[on_action]]'
+                          - entity: '[[on_entity]]'
+                          - brightness: '[[on_brightness]]'
+                          - color: '[[on_color]]'
+                          - temperature: '[[on_white_balance]]'
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: 2x Press
+                    entities:
+                      - type: custom:decluttering-card
+                        template: switch_action_select_card
+                        variables:
+                          - action: '[[on_2x_action]]'
+                          - entity: '[[on_2x_entity]]'
+                          - brightness: '[[on_2x_brightness]]'
+                          - color: '[[on_2x_color]]'
+                          - temperature: '[[on_2x_white_balance]]'
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: 3x Press
+                    entities:
+                      - type: custom:decluttering-card
+                        template: switch_action_select_card
+                        variables:
+                          - action: '[[on_3x_action]]'
+                          - entity: '[[on_3x_entity]]'
+                          - brightness: '[[on_3x_brightness]]'
+                          - color: '[[on_3x_color]]'
+                          - temperature: '[[on_3x_white_balance]]'
+                            secondary_info: none
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: 4x Press
+                    entities:
+                      - type: custom:decluttering-card
+                        template: switch_action_select_card
+                        variables:
+                          - action: '[[on_4x_action]]'
+                          - entity: '[[on_4x_entity]]'
+                          - brightness: '[[on_4x_brightness]]'
+                          - color: '[[on_4x_color]]'
+                          - temperature: '[[on_4x_white_balance]]'
+                  - type: custom:fold-entity-row
+                    head:
+                      type: section
+                      label: 5x Press
+                    entities:
+                      - type: custom:decluttering-card
+                        template: switch_action_select_card
+                        variables:
+                          - action: '[[on_5x_action]]'
+                          - entity: '[[on_5x_entity]]'
+                          - brightness: '[[on_5x_brightness]]'
+                          - color: '[[on_5x_color]]'
+                          - temperature: '[[on_5x_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Up Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[up_action]]'
+                  - entity: '[[up_entity]]'
+                  - brightness: '[[up_brightness]]'
+                  - color: '[[up_color]]'
+                  - temperature: '[[up_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Down Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[down_action]]'
+                  - entity: '[[down_entity]]'
+                  - brightness: '[[down_brightness]]'
+                  - color: '[[down_color]]'
+                  - temperature: '[[down_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Off Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[off_action]]'
+                  - entity: '[[off_entity]]'
+                  - brightness: '[[off_brightness]]'
+                  - color: '[[off_color]]'
+                  - temperature: '[[off_white_balance]]'
+  tradfri_switch:
+    card:
+      type: conditional
+      conditions:
+        - entity: input_select.switch_options
+          state: '[[select_option]]'
+      card:
+        type: custom:stack-in-card
+        card_mod:
+          style:
+            div:
+              hui-vertical-stack-card:
+                $:
+                  div#root:
+                    fold-entity-row:
+                      $: |
+                        div#items {
+                            padding-left: 10px !important;
+                          }
+            .: |
+              ha-card {
+                overflow: visible !important;
+              }
+        cards:
+          - type: custom:decluttering-card
+            template: switch_header_card
+            variables:
+              - enabler: '[[enabler]]'
+              - icon: hue:tap-dial
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Toggle Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[toggle_action]]'
+                  - entity: '[[toggle_entity]]'
+                  - brightness: '[[toggle_brightness]]'
+                  - color: '[[toggle_color]]'
+                  - temperature: '[[toggle_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Brightness Up Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[brightness_up_action]]'
+                  - entity: '[[brightness_up_entity]]'
+                  - brightness: '[[brightness_up_brightness]]'
+                  - color: '[[brightness_up_color]]'
+                  - temperature: '[[brightness_up_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Brightness Down Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[brightness_down_action]]'
+                  - entity: '[[brightness_down_entity]]'
+                  - brightness: '[[brightness_down_brightness]]'
+                  - color: '[[brightness_down_color]]'
+                  - temperature: '[[brightness_down_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Left Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[left_action]]'
+                  - entity: '[[left_entity]]'
+                  - brightness: '[[left_brightness]]'
+                  - color: '[[left_color]]'
+                  - temperature: '[[left_white_balance]]'
+          - type: custom:fold-entity-row
+            head:
+              type: section
+              label: Right Button
+            entities:
+              - type: custom:decluttering-card
+                template: switch_action_select_card
+                variables:
+                  - action: '[[right_action]]'
+                  - entity: '[[right_entity]]'
+                  - brightness: '[[right_brightness]]'
+                  - color: '[[right_color]]'
+                  - temperature: '[[right_white_balance]]'
+  switch_action_select_card:
+    card:
+      type: custom:stack-in-card
+      card_mod:
+        style: |
+          ha-card {
+            overflow: visible !important; 
+          }
+      cards:
+        - type: custom:mushroom-select-card
+          entity: '[[action]]'
+          name: Action
+          primary_info: name
+          secondary_info: none
+          layout: horizontal
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state_not: None
+          card:
+            type: custom:mushroom-select-card
+            entity: '[[entity]]'
+            name: Entity
+            primary_info: name
+            secondary_info: none
+            layout: horizontal
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Brightness
+          card:
+            type: custom:mushroom-number-card
+            entity: '[[brightness]]'
+            name: Brightness %
+            icon_color: amber
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Light Brightness and Color
+          card:
+            type: custom:mushroom-number-card
+            entity: '[[brightness]]'
+            name: Brightness %
+            icon_color: amber
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Light Brightness and Temperature
+          card:
+            type: custom:mushroom-number-card
+            entity: '[[brightness]]'
+            name: Brightness %
+            icon_color: amber
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Color
+          card:
+            type: custom:mushroom-select-card
+            entity: '[[color]]'
+            name: Color
+            primary_info: name
+            secondary_info: none
+            layout: horizontal
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Light Brightness and Color
+          card:
+            type: custom:mushroom-select-card
+            entity: '[[color]]'
+            name: Color
+            primary_info: name
+            secondary_info: none
+            layout: horizontal
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set White Temperature
+          card:
+            type: custom:mushroom-number-card
+            entity: '[[temperature]]'
+            name: White Temperature
+            icon_color: amber
+        - type: conditional
+          conditions:
+            - entity: '[[action]]'
+              state: Set Light Brightness and Temperature
+          card:
+            type: custom:mushroom-number-card
+            entity: '[[temperature]]'
+            name: White Temperature
+            icon_color: amber

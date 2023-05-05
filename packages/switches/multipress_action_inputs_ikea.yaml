@@ -1,0 +1,143 @@
+# Inputs to adjust the actions for the multipress sensors
+# All files in this directory are designed to be used together. I will not diagnose issues you may run into otherwise.
+# 
+# Allows for the switch actions to be changed in the frontend by the user.
+# My Ikea switches are not setup for multipress actions. This can be changed by the user, though.
+#
+# Substitutes:
+#   * FRIENDLY NAME: The name given to the inputs
+#   * ENTITY_ID_enable: Input to enable the switch
+#   * ENTITY_ID_XXXX_action: The action to be performed with the switch selected
+#   * ENTITY_ID_XXXX_entity: The entity to perform the action on
+#   * ENTITY_ID_XXXX_color: If any Set Color actions are selected, this will allow the user to select the color
+#   * ENTITY_ID_XXXX_brightness: If any Set Brightness actions are selected, this will allow the user to select the brightness
+#   * ENTITY_ID_XXXX_white_balance: If any Set Temperature actions are selected, this will allow the user to select the white balance
+#   * ENTITY_ID_XXXX_1x-5x_XXXX: Same as the above but only for that action
+#   * /path/to/multipress_action_options.yaml: The path to the file including the action options. Save this outside of your packages directory
+
+
+input_boolean:
+  ENTITY_ID_enable:
+    name: FRIENDLY NAME Switch
+
+input_select:
+  ENTITY_ID_toggle_action:
+    name: FRIENDLY NAME 'Toggle' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_brightness_up_action:
+    name: FRIENDLY NAME 'Brightness Up' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_brightness_down_action:
+    name: FRIENDLY NAME 'Brightness Down' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_left_action:
+    name: FRIENDLY NAME 'Left' Action
+    options: !include /path/to/multipress_action_options.yaml
+  ENTITY_ID_right_action:
+    name: FRIENDLY NAME 'Right' Action
+    options: !include /path/to/multipress_action_options.yaml
+
+  ENTITY_ID_toggle_color:
+    name: FRIENDLY NAME 'Toggle' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_brightness_up_color:
+    name: FRIENDLY NAME 'Brightness Up' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_brightness_down_color:
+    name: FRIENDLY NAME 'Brightness Down' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_left_color:
+    name: FRIENDLY NAME 'Left' Action
+    options: !include /path/to/multipress_light_options.yaml
+  ENTITY_ID_right_color:
+    name: FRIENDLY NAME 'Right' Action
+    options: !include /path/to/multipress_light_options.yaml
+
+  ENTITY_ID_toggle_entity:
+    name: FRIENDLY NAME 'Toggle' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_brightness_up_entity:
+    name: FRIENDLY NAME 'Brightness Up' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_brightness_down_entity:
+    name: FRIENDLY NAME 'Brightness Down' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_left_entity:
+    name: FRIENDLY NAME 'Left' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+  ENTITY_ID_right_entity:
+    name: FRIENDLY NAME 'Right' Entity
+    options: !include /path/to/multipress_entity_options.yaml
+
+input_number:
+  ENTITY_ID_toggle_brightness:
+    name: FRIENDLY NAME 'Toggle' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_brightness_up_brightness:
+    name: FRIENDLY NAME 'Brightness Up' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_brightness_down_brightness:
+    name: FRIENDLY NAME 'Brightness Down' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_left_brightness:
+    name: FRIENDLY NAME 'Left' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+  ENTITY_ID_right_brightness:
+    name: FRIENDLY NAME 'Right' Brightness
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+    unit_of_measurement: '%'
+
+  ENTITY_ID_toggle_white_balance:
+    name: FRIENDLY NAME 'Toggle' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_brightness_up_white_balance:
+    name: FRIENDLY NAME 'Brightness Up' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_brightness_down_white_balance:
+    name: FRIENDLY NAME 'Brightness Down' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_left_white_balance:
+    name: FRIENDLY NAME 'Left' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'
+  ENTITY_ID_right_white_balance:
+    name: FRIENDLY NAME 'Right' Temp
+    min: 2000
+    max: 6500
+    step: 1
+    mode: box
+    unit_of_measurement: 'K'

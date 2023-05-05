@@ -1,0 +1,338 @@
+# A template helper sensor to make the automations easier.
+# Details:
+#   * action_sensors:
+#       Reports the states
+#       To help with adding more switches, copy everything between the two blank lines and paste it once for each switch you want to add.
+#
+#       Schema: {
+#         sensor.ENTITY_switch_last_action: {
+#           enable: states('input_boolean.enable_sensor'),
+#           actions: {
+#             reported_action: {
+#               action: states('input_select.ENTITY_ID_XXXX_action'),
+#               entity: states('input_select.ENTITY_ID_toggle_entity'),
+#               brightness: states('input_number.ENTITY_ID_toggle_brightness'),
+#               color: states('input_select.ENTITY_ID_toggle_color'),
+#               temperature: states('input_number.ENTITY_ID_toggle_white_balance')
+#             }
+#           }
+#         }
+#       }
+#
+#   * domain_services:
+#       Gives the service and script to run for the selected entity's domain and action selected
+#       Any service listed with none will not be called
+#       Only change these if you are creating the service yourself
+#
+#       Schema: {
+#         domain: {
+#           action_option: {
+#             service: domain.service_name,
+#             script: name_of_script
+#           }
+#         }
+#       }
+#   *
+#   *
+#   *
+#   *
+# Substitutes:
+#   * sensor.ENTITY_switch_last_action: Entity ID for sensor created in multipress_sensors.yaml
+#   * ENTITY_ID_XXXX_action: The action input set up in the multipress_action_inputs file
+#   * ENTITY_ID_XXXX_entity: The entity to perform the action on
+#   * ENTITY_ID_XXXX_color: If any Set Color actions are selected, this will allow the user to select the color
+#   * ENTITY_ID_XXXX_brightness: If any Set Brightness actions are selected, this will allow the user to select the brightness
+#   * ENTITY_ID_XXXX_white_balance: If any Set Temperature actions are selected, this will allow the user to select the white balance
+sensor:
+  - platform: template
+    sensors:
+      switch_automations:
+        unique_id: switch_automations
+        friendly_name: Switch Automations
+        value_template: "sensoring"
+        attribute_templates: 
+          action_sensors: >-
+            {{
+              {
+
+
+                'sensor.ENTITY_switch_last_action': {
+                  'enable': states('input_boolean.central_bedroom_switch'),
+                  'actions': {
+                    'on-press': {
+                      'action': states('input_select.ENTITY_ID_on_action'),
+                      'entity': states('input_select.ENTITY_ID_on_entity'),
+                      'brightness': states('input_number.ENTITY_ID_on_brightness'),
+                      'color': states('input_select.ENTITY_ID_on_color'),
+                      'temperature': states('input_number.ENTITY_ID_on_white_balance')
+                    },
+                    'on-press_2x': {
+                      'action': states('input_select.ENTITY_ID_on_press_2x_action'),
+                      'entity': states('input_select.central_bed_switch_on_2x_entity'),
+                      'brightness': states('input_number.ENTITY_ID_on_press_2x_brightness'),
+                      'color': states('input_select.ENTITY_ID_on_press_2x_color'),
+                      'temperature': states('input_number.ENTITY_ID_on_press_2x_white_balance')
+                    },
+                    'on-press_3x': {
+                      'action': states('input_select.ENTITY_ID_on_press_3x_action'),
+                      'entity': states('input_select.central_bed_switch_on_3x_entity'),
+                      'brightness': states('input_number.ENTITY_ID_on_press_3x_brightness'),
+                      'color': states('input_select.ENTITY_ID_on_press_3x_color'),
+                      'temperature': states('input_number.ENTITY_ID_on_press_3x_white_balance')
+                    },
+                    'on-press_4x': {
+                      'action': states('input_select.ENTITY_ID_on_press_4x_action'),
+                      'entity': states('input_select.central_bed_switch_on_4x_entity'),
+                      'brightness': states('input_number.ENTITY_ID_on_press_4x_brightness'),
+                      'color': states('input_select.ENTITY_ID_on_press_4x_color'),
+                      'temperature': states('input_number.ENTITY_ID_on_press_4x_white_balance')
+                    },
+                    'on-press_5x': {
+                      'action': states('input_select.ENTITY_ID_on_press_5x_action'),
+                      'entity': states('input_select.central_bed_switch_on_5x_entity'),
+                      'brightness': states('input_number.ENTITY_ID_on_press_5x_brightness'),
+                      'color': states('input_select.ENTITY_ID_on_press_5x_color'),
+                      'temperature': states('input_number.ENTITY_ID_on_press_5x_white_balance')
+                    },
+                    'off-press': {
+                      'action': states('input_select.ENTITY_ID_off_action'),
+                      'entity': states('input_select.ENTITY_ID_off_entity'),
+                      'brightness': states('input_number.ENTITY_ID_off_brightness'),
+                      'color': states('input_select.ENTITY_ID_off_color'),
+                      'temperature': states('input_number.ENTITY_ID_off_white_balance')
+                    },
+                    'up-press': {
+                      'action': states('input_select.ENTITY_ID_up_action'),
+                      'entity': states('input_select.ENTITY_ID_up_entity'),
+                      'brightness': states('input_number.ENTITY_ID_up_brightness'),
+                      'color': states('input_select.ENTITY_ID_up_color'),
+                      'temperature': states('input_number.ENTITY_ID_up_white_balance')
+                    },
+                    'up-hold': {
+                      'action': states('input_select.ENTITY_ID_up_action'),
+                      'entity': states('input_select.ENTITY_ID_up_entity'),
+                      'brightness': states('input_number.ENTITY_ID_up_brightness'),
+                      'color': states('input_select.ENTITY_ID_up_color'),
+                      'temperature': states('input_number.ENTITY_ID_up_white_balance')
+                    },
+                    'down-press': {
+                      'action': states('input_select.ENTITY_ID_down_action'),
+                      'entity': states('input_select.ENTITY_ID_down_entity'),
+                      'brightness': states('input_number.ENTITY_ID_down_brightness'),
+                      'color': states('input_select.ENTITY_ID_down_color'),
+                      'temperature': states('input_number.ENTITY_ID_down_white_balance')
+                    },
+                    'down-hold': {
+                      'action': states('input_select.ENTITY_ID_down_action'),
+                      'entity': states('input_select.ENTITY_ID_down_entity'),
+                      'brightness': states('input_number.ENTITY_ID_down_brightness'),
+                      'color': states('input_select.ENTITY_ID_down_color'),
+                      'temperature': states('input_number.ENTITY_ID_down_white_balance')
+                    }
+                  }
+                },
+
+
+              }
+            }}
+
+          domain_services: >-
+            {{
+              {
+                'automation': {
+                  'Toggle': {
+                    'service': 'automation.trigger',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'automation.turn_on',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'automation.turn_off',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': none,
+                  'Turn Down': none,
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'light': {
+                  'Toggle': {
+                    'service': 'light.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'light.turn_off',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_turn_up_light'
+                  },
+                  'Turn Down': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_turn_down_light'
+                  },
+                  'Set Brightness': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_light_brightness'
+                  },
+                  'Set Color': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_light_color'
+                  },
+                  'Set White Temperature': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_light_temperature'
+                  },
+                  'Set Light Brightness and Color': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_light_brightness_and_color'
+                  },
+                  'Set Light Brightness and Temperature': {
+                    'service': 'light.turn_on',
+                    'script': 'script.switch_light_brightness_and_temperature'
+                  },
+                },
+                'fan': {
+                  'Toggle': {
+                    'service': 'fan.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'fan.turn_on',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'fan.turn_off',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': {
+                    'service': 'fan.increase_speed',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Down': {
+                    'service': 'fan.decrease_speed',
+                    'script': 'script.switch_service'
+                  },
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'cover': {
+                  'Toggle': {
+                    'service': 'cover.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'cover.open_cover',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'cover.close_cover',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': {
+                    'service': 'cover.set_cover_position',
+                    'script': 'script.switch_turn_up_cover'
+                  },
+                  'Turn Down': {
+                    'service': 'cover.set_cover_position',
+                    'script': 'script.switch_turn_down_cover'
+                  },
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'switch': {
+                  'Toggle': {
+                    'service': 'switch.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'switch.turn_on',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'switch.turn_off',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': none,
+                  'Turn Down': none,
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'input_boolean': {
+                  'Toggle': {
+                    'service': 'input_boolean.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'input_boolean.turn_on',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'input_boolean.turn_off',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': none,
+                  'Turn Down': none,
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'vacuum': {
+                  'Toggle': {
+                    'service': 'vacuum.toggle',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn on': {
+                    'service': 'vacuum.start',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Off': {
+                    'service': 'vacuum.stop',
+                    'script': 'script.switch_service'
+                  },
+                  'Turn Up': none,
+                  'Turn Down': none,
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                },
+                'all': {
+                  'Toggle': none,
+                  'Turn on': none,
+                  'Turn Off': {
+                    'service': none,
+                    'script': 'script.switch_off_all'
+                  },
+                  'Turn Up': none,
+                  'Turn Down': none,
+                  'Set Brightness': none,
+                  'Set Color': none,
+                  'Set White Temperature': none,
+                  'Set Light Brightness and Color': none,
+                  'Set Light Brightness and Temperature': none,
+                }
+              }
+            }}

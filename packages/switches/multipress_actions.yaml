@@ -1,0 +1,394 @@
+# Automations and scripts to respond to a switch pressed multiple times.
+# All files in this directory are designed to be used together. I will not diagnose issues you may run into otherwise.
+#
+# Substitutes:
+#   * sensor.ENTITY_switch_last_action: Entity ID for sensor created in multipress_sensors.yaml
+#   *
+#   *
+#   *
+#   *
+#   *
+automation:
+  - alias: Switch Actions
+    id: switch_actions
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ENTITY_switch_last_action
+        attribute: last_updated
+    variables:
+      action_data: >-
+        {% set tt = trigger.to_state %}
+        {% set data = state_attr('sensor.switch_automations', 'action_sensors') %}
+        {% if data is none %}
+          {% set result = none %}
+        {% else %}
+          {% set data = data.get(tt.entity_id) %}
+          {% set data = data.get('actions') %}
+          {% if tt.attributes.press_count > 1 %}
+            {% set st = tt.state + '_' + (tt.attributes.press_count | string) + 'x' %}
+            {% if st in data %}
+              {% set data = data.get(st) %}
+              {% set return_act = st %}
+            {% else %}
+              {% set data = data.get(tt.state, none) %}
+              {% set return_act = tt.state %}
+            {% endif %}
+          {% else %}
+            {% set data = data.get(tt.state, none) %}
+              {% set return_act = tt.state %}
+          {% endif %}
+          {% if data is none %}
+            {% set action = none %}
+          {% else %}
+            {% set act = data.get('action') %}
+            {% set entity = data.get('entity') %}
+            {% set actions = state_attr('sensor.switch_automations','domain_services') %}
+            {% set domain = entity.split('.')[0] %}
+            {% set action = actions.get(domain) %}
+            {% set action = action.get(act) %}
+          {% endif %}
+          {% if action is none %}
+            {% set result = none %}
+          {% else %}
+            {% set service = action.get('service') %}
+            {% set script = action.get('script') %}
+            {% set result = {
+              'service_entity': entity,
+              'service': service,
+              'script': script,
+              'action_entity': tt.entity_id,
+              'action': return_act
+              }
+            %}
+          {% endif %}
+        {% endif %}
+        {{ result }}
+      automations_enabled: >-
+        {% set data = state_attr('sensor.switch_automations', 'action_sensors') %}
+        {% if data is none %}
+          {% set result = none %}
+        {% else %}
+          {% set data = data.get(trigger.to_state.entity_id) %}
+          {% set result = data.get('enable') %}
+        {% endif %}
+        {{ result }}
+            
+    condition:
+      - condition: template
+        value_template: >-
+          {{ automations_enabled == 'on' }}
+      - condition: template
+        value_template: >-
+          {{ action_data is not none }}
+      - condition: template
+        value_template: >-
+          {% if 'last_updated' not in trigger.from_state.attributes and trigger.from_state.state != '' %}
+            {{ false }}
+          {% else %}
+            {{ trigger.to_state.attributes.last_updated != trigger.from_state.attributes.last_updated}}
+          {% endif %}
+    action:
+      - service: >-
+          {{ action_data.script }}
+        data:
+          switch_service: >-
+            {{ action_data.service }}
+          switch_entity: >-
+            {{ action_data.service_entity }}
+          action_entity: >-
+            {{ action_data.action_entity }}
+          action: >-
+            {{ action_data.action }}
+
+script:
+  switch_service:
+    alias: Standard Switch Service
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data:
+          entity_id: >
+            {{ switch_entity }}
+
+  switch_light_brightness_and_color:
+    alias: Set Light Brightness and Color
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data:
+          entity_id: >-
+            {{ switch_entity }}
+          brightness_pct: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('brightness') %}
+            {{ result }}
+          color_name: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('color') %}
+            {{ result }}
+
+  switch_light_brightness_and_temperature:
+    alias: Set Light Brightness and Color
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data:
+          entity_id: >-
+            {{ switch_entity }}
+          brightness_pct: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('brightness') %}
+            {{ result }}
+          kelvin: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('temperature') %}
+            {{ result }}
+
+  switch_light_brightness:
+    alias: Set Light Brightness
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data: 
+          entity_id: >-
+            {{ switch_entity }}
+          brightness_pct: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('brightness') %}
+            {{ result }}
+            
+  switch_light_color:
+    alias: Set Light Color
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data: 
+          entity_id: >-
+            {{ switch_entity }}
+          color_name: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('color') %}
+            {{ result }}
+    
+  switch_light_temperature:
+    alias: Set Light Temperature
+    sequence:
+      - service: >-
+          {{ switch_service }}
+        data: 
+          entity_id: >-
+            {{ switch_entity }}
+          kelvin: >-
+            {% set data = state_attr('sensor.switch_automations','action_sensors') %}
+            {% set result = data.get(action_entity).get('actions') %}
+            {% set result = result.get(action) %}
+            {% set result = result.get('temperature') %}
+            {{ result }}
+    
+  switch_turn_up_light:
+    alias: Turn Up
+    sequence:
+      - if:
+          - condition: template
+            value_template: >- 
+              {% set press = 'click' in states(action_entity) or 'press' in states(action_entity) %}
+              {% set max_bright = 255 %}
+              {% set bright_below_max = state_attr(switch_entity, 'brightness') < max_bright %}
+              {{ bright_below_max and not press }}
+        then:
+          - repeat:
+              while:
+                - condition: template
+                  value_template: >- 
+                    {% set release = 'release' in states(action_entity) %}
+                    {% set max_bright = 255 %}
+                    {% set bright_below_max = state_attr(switch_entity, 'brightness') < max_bright %}
+                    {{ bright_below_max and not release }}
+              sequence:
+                - service: >-
+                    {{ switch_service }}
+                  data: 
+                    entity_id: >-
+                      {{ switch_entity }}
+                    brightness_step_pct: 7.5
+                    transition: .1
+                - delay:
+                    milliseconds: 100
+        else:
+          - service: >-
+              {{ switch_service }}
+            data:
+              entity_id: >-
+                {{ switch_entity }}
+              brightness_step_pct: 10
+  
+  switch_turn_down_light:
+    alias: Turn Down
+    sequence:
+      - if:
+          - condition: template
+            value_template: >- 
+              {% set press = 'click' in states(action_entity) or 'press' in states(action_entity) %}
+              {% set min_bright = 10 %}
+              {% set bright_above_min = state_attr(switch_entity, 'brightness') > min_bright %}
+              {{  bright_above_min and not press }}
+        then:
+          - repeat:
+              while:
+                - condition: template
+                  value_template: >- 
+                    {% set release = 'release' in states(action_entity) %}
+                    {% set min_bright = 10 %}
+                    {% set bright_above_min = state_attr(switch_entity, 'brightness') > min_bright %}
+                    {{ bright_above_min and not release }}
+              sequence:
+                - service: >-
+                    {{ switch_service }}
+                  data: 
+                    entity_id: >-
+                      {{ switch_entity }}
+                    transition: .1
+                    brightness_step_pct: -7.5
+                - delay:
+                    hours: 0
+                    minutes: 0
+                    seconds: 0
+                    milliseconds: 100
+        else:
+          - service: >-
+              {{ switch_service }}
+            data:
+              entity_id: >-
+                {{ switch_entity }}
+              brightness_step_pct: -10
+              
+  switch_turn_up_cover:
+    alias: Turn Up
+    sequence:
+      - if:
+        - condition: template
+          value_template: >
+            {% set supported_feature_str = state_attr(switch_entity, 'supported_features') %}
+            {% set feats = '{:b}'.format(supported_feature_str) %}
+            {% set supports_tilt = (feats[-3] == '1') %}
+            {{ supports_tilt }}
+        then:
+          - service: >-
+              {{ switch_service }}
+            data:
+              entity_id: >-
+                {{ switch_entity }}
+              position: >
+                {% set desire_pos = state_attr(switch_entity, 'current_position') | int + 10 %}
+                {% set max_pos = 100 %}
+                {{ [desire_pos, max_pos] | min }}
+
+  switch_turn_down_cover:
+    alias: Turn Down
+    sequence:
+      - if:
+        - condition: template
+          value_template: >
+            {% set supported_feature_str = state_attr(switch_entity, 'supported_features') %}
+            {% set feats = '{:b}'.format(supported_feature_str) %}
+            {% set supports_tilt = (feats[-3] == '1') %}
+            {{ supports_tilt }}
+        then:
+          - service: >-
+              {{ switch_service }}
+            data:
+              entity_id: >-
+                {{ switch_entity }}
+              position: >
+                {% set desire_pos = state_attr(switch_entity, 'current_position') | int - 10 %}
+                {% set min_pos = 0 %}
+                {{ [desire_pos, min_pos] | max }}
+
+  switch_off_all:
+    alias: Turn All Off
+    sequence:
+      - service: fan.turn_off
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.fan %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state == 'on' %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}
+      - service: switch.turn_off
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.switch %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state == 'on' %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}
+      - service: light.turn_off
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.light %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state == 'on' %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}
+      - service: remote.turn_off
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.remote %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state == 'on' %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}
+      - service: cover.close_cover
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.cover %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state == 'open' %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}
+      - service: media_player.turn_off
+        target:
+          entity_id: >-
+            {% set ns = namespace(result=[]) %}
+            {% set entities = states.media_player %}
+            {% set ignore_ents = state_attr('sensor.ignore_turn_off','all_entities') %}
+            {% for entity in entities %}
+              {% if entity.entity_id not in ignore_ents and entity.state not in ('off','unavailable') %}
+                {% set ns.result = ns.result + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.result }}

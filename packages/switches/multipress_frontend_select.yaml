@@ -1,0 +1,4 @@
+input_select:
+  switch_options:
+    name: Switches
+    options: !include /path/to/multipress_switch_options.yaml

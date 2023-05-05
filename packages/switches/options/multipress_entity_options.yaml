@@ -1,0 +1,18 @@
+# Store outside of the packages directory, such as at /config/const.
+# To save space and avoid repetition, these are inserted to the action_inputs files using !include
+#
+# Add the list of all the entities you want to be controlled by the switches
+# Works with the followind domains:
+#   * automation
+#   * cover
+#   * fan
+#   * light
+#   * switch
+#   * vacuum
+
+- all
+- domain.entity_id_1
+- domain.entity_id_2
+- domain.entity_id_3
+- domain.entity_id_4
+- domain.entity_id_5

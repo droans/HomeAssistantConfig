@@ -1,0 +1,12 @@
+# Store outside of the packages directory, such as at /config/const.
+# To save space and avoid repetition, these are inserted to the action_inputs files using !include
+#
+# Used to create a front-end selector for the current switch
+#
+# Add the names of your switches below
+
+- Switch Friendly Name 1
+- Switch Friendly Name 2
+- Switch Friendly Name 3
+- Switch Friendly Name 4
+- Switch Friendly Name 5
