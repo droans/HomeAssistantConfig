@@ -1,0 +1,22 @@
+# Turn Lights off automatically
+# Delay set by an input_number so that it can be set on the dashboard by users
+#
+# Substitutes:
+#   * light.ENTITY_ID: The entity ID of the light
+#   * input_number.DELAY_IN_MINUTES: The input entity which is used to determine the delay before turning of the lights
+
+automation:
+  - id: 'timed_lights_off'
+    alias: Turn Lights off after specified time
+    trigger:
+    - platform: state
+      entity_id: light.ENTITY_ID
+      to: 'on'
+      for:
+        minutes: >
+          {{ states('input_number.DELAY_IN_MINUTES') | int(DEFAULT_VAL) }}
+    action:
+    - service: light.turn_off
+      target:
+        entity_id: light.ENTITY_ID
+    mode: single

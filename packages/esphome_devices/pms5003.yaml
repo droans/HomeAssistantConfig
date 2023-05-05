@@ -1,0 +1,39 @@
+# Template sensors for PMS5003 to create a total particulate count and concentration.
+#
+# Substitutes:
+#   * FRIENDLY_NAME: The name you are giving the sensors
+#   * UNIQUE_ID_pm_XXXXX: The unique ID for the sensors
+#   * sensor.DEVICE_NAME_particulate_matter_XXXX: The name for the original sensor from the ESPHome device
+
+template:
+  - sensor:
+      - name: FRIENDLY_NAME Total Particulate Count
+        unique_id: UNIQUE_ID_pm_count
+        state: >-
+          {{ 
+            (states('sensor.DEVICE_NAME_particulate_matter_1_0um_count') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_2_5um_count') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_10_0um_count') | int(0)) 
+          }}
+        icon: mdi:chemical-weapon
+        unit_of_measurement: /dL
+      - name: FRIENDLY_NAME Total Particulate Concentration
+        unique_id: UNIQUE_ID_pm_concentration
+        state: >-
+          {{ 
+            (states('sensor.DEVICE_NAME_particulate_matter_1_0um_concentration') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_2_5um_concentration') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_1_0um_concentration') | int(0)) 
+          }}
+        unit_of_measurement: µg/m³
+        icon: mdi:chemical-weapon
+      - name: FRIENDLY_NAME Total Particulate Standard Size Concentration
+        unique_id: UNIQUE_ID_pm_std_size_concentration
+        state: >-
+          {{ 
+            (states('sensor.DEVICE_NAME_particulate_matter_1_0um_standard_size_concentration') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_2_5um_standard_size_concentration') | int(0)) +
+            (states('sensor.DEVICE_NAME_particulate_matter_10_0um_standard_size_concentration') | int(0)) 
+          }}
+        unit_of_measurement: µg/m³
+        icon: mdi:chemical-weapon

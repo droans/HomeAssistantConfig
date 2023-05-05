@@ -1,0 +1,97 @@
+# Automations to open and close your shades or blinds
+#
+# The shades will open only if:
+#   * Your beds are not fully occupied
+#   * The sun is up
+#   * The outdoor temp is at least 5 degrees cooler than both the indoor temp and the thermostat target high temperature
+#
+# Substitutes:
+#   * binary_sensor.BED_FULLY_OCCUPIED: The sensor that returns true/on if the beds are fully occupied, otherwise is off
+#   * sensor.OUTDOOR_TEMPERATURE: The sensor reporting the current outdoor temperature. Recommend using something local instead of a generic temperature
+#   * sensor.INDOOR_TEMPERATURE: The sensor reporting the current indoor temperature
+#   * sensor.THERMOSTAT_TARGET_HIGH: The sensor reporting the target high temperature for your thermostat
+#   * sun.sun: The default HA sun sensor; should not need changing
+#   * cover.SHADES_ENTITY: The entity for your shades
+
+automation:
+  - alias: Open Side Shades During Day
+    id: open_lr_shades_during_day
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.BED_FULLY_OCCUPIED
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+      - platform: sun
+        event: sunrise
+        offset: 0
+      - platform: template
+        value_template: >-
+          {% set outdoor_temp = states('sensor.OUTDOOR_TEMPERATURE') | int(99) + 5 %}
+          {% set indoor_temp = states('sensor.INDOOR_TEMPERATURE') | int(0) %}
+          {% set target_high = states('sensor.THERMOSTAT_TARGET_HIGH') | int(0) %}
+          {{ indoor_temp > outdoor_temp and target_high > outdoor_temp }}
+    condition:
+      - condition: template
+        value_template: >-
+          {% set outdoor_temp = states('sensor.OUTDOOR_TEMPERATURE') | int(99) + 5 %}
+          {% set indoor_temp = states('sensor.INDOOR_TEMPERATURE') | int(0) %}
+          {% set target_high = states('sensor.THERMOSTAT_TARGET_HIGH') | int(0) %}
+          {% set temp_result = indoor_temp > outdoor_temp and target_high > outdoor_temp %}
+
+          {% set sun = states('sun.sun') %}
+          {% set sun_result = sun == 'above_horizon' %}
+
+          {% set bed_result = states('binary_sensor.BED_FULLY_OCCUPIED') == 'off' %}
+          {{ temp_result and sun_result and bed_result }}
+    action:
+      - service: cover.open_cover
+        data: {}
+        target:
+          entity_id: cover.SHADES_ENTITY
+    mode: single
+
+  - alias: Close shades at night and when we leave
+    id: close_lr_shades_at_night_and_not_home
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.BED_FULLY_OCCUPIED
+        to: "on"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+      - platform: sun
+        event: sunset
+        offset: 0
+      - platform: template
+        value_template: >-
+          {% set outdoor_temp = states('sensor.OUTDOOR_TEMPERATURE') | int(99) + 5 %}
+          {% set indoor_temp = states('sensor.INDOOR_TEMPERATURE') | int(0) %}
+          {% set target_high = states('sensor.THERMOSTAT_TARGET_HIGH') | int(0) %}
+          {{ indoor_temp < outdoor_temp or target_high < outdoor_temp }}
+    condition:
+      - condition: template
+        value_template: >-
+          {% set outdoor_temp = states('sensor.OUTDOOR_TEMPERATURE') | int(99) + 5 %}
+          {% set indoor_temp = states('sensor.INDOOR_TEMPERATURE') | int(0) %}
+          {% set target_high = states('sensor.THERMOSTAT_TARGET_HIGH') | int(0) %}
+          {% set temp_result = indoor_temp < outdoor_temp or target_high < outdoor_temp %}
+
+          {% set sun = states('sun.sun') %}
+          {% set sun_result = sun != 'above_horizon' %}
+
+          {% set bed_result = states('binary_sensor.BED_FULLY_OCCUPIED') == 'on' %}
+          {{ temp_result or sun_result or bed_result }}
+    action:
+      - service: cover.close_cover
+        data: {}
+        target:
+          entity_id: cover.SHADES_ENTITY
+    mode: single

@@ -1,0 +1,93 @@
+# Send a persistent notification when the garage door is open. 
+# Includes an action in the notification to close the garage door.
+# Automatically clears the notification if the door is closed.
+#
+# Automations:
+#   * garage_open: Sends notification when garage has been opened
+#   * close_garage: Responds to notification action event and closes the garage
+#   * clear_garage_notification: Clears out the notification when the garage has been closed
+# 
+# Tested on Androids. Might require small changes to work with iOS
+#
+# Substitutes:
+#   * GARAGE_DEVICE_ID: The ID of the garage door
+#   * cover.GARAGE_ENTITY: The Entity ID of the garage door
+#   * notify.NOTIFY_SERVICE: The notify service being used
+automation:
+  - id: 'garage_open'
+    alias: Notify When Garage is open
+    description: ''
+    trigger:
+    - platform: device
+      device_id: GARAGE_DEVICE_ID
+      domain: cover
+      entity_id: cover.GARAGE_ENTITY
+      type: opened
+    condition: []
+    action:
+    - service: notify.NOTIFY_SERVICE
+      data:
+        title: The garage door is currently open.
+        message: Would you like to close it?
+        data:
+          persistent: true
+          group: garage_group
+          tag: persistent_garage
+          actions:
+          - action: CLOSE
+            title: Close the door.
+          - action: IGNORE
+            title: Wait
+    mode: single
+
+  - id: 'close_garage'
+    alias: Close the Garage Door
+    description: ''
+    trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data:
+        action: CLOSE
+    - platform: device
+      device_id: GARAGE_DEVICE_ID
+      domain: cover
+      entity_id: cover.GARAGE_ENTITY
+      type: opened
+      for:
+        hours: 1
+        minutes: 30
+        seconds: 0
+    condition: []
+    action:
+    - service: notify.NOTIFY_SERVICE
+      data:
+        message: Closing the door
+        title: Closing the door
+    - device_id: GARAGE_DEVICE_ID
+      domain: cover
+      entity_id: cover.GARAGE_ENTITY
+      type: close
+    - service: notify.NOTIFY_SERVICE
+      data:
+        message: clear_notification
+        data:
+          tag: persistent_garage
+    mode: single
+
+  - id: 'clear_garage_notification'
+    alias: Clear notification when Garage Door is closed
+    description: ''
+    trigger:
+    - platform: device
+      device_id: GARAGE_DEVICE_ID
+      domain: cover
+      entity_id: cover.GARAGE_ENTITY
+      type: closed
+    condition: []
+    action:
+    - service: notify.NOTIFY_SERVICE
+      data:
+        message: clear_notification
+        data:
+          tag: persistent_garage
+    mode: single

@@ -1,0 +1,28 @@
+# Open selected shades to 40% when alarm goes off.
+# Since we expect the alarm sensor to update when the alarm goes off, the automation is set up to open the shades one minute before hand.
+#
+# Only works for Android devices currently
+#
+# Substitutes:
+#   * sensor.ENTITY_next_alarm: Next Alarm sensor for your phone
+#   * SHADES_DEVICE_ID: Device ID for the shades to be opened
+#   * cover.SHADES_ENTITY: Entity ID for the shades to be opened
+
+automation:
+  - id: 'open_shades_with_alarm'
+    alias: Open Shades partway when alarm goes off
+    trigger:
+    - platform: template
+      value_template: >-
+         {% set cur_time = now().strftime("%a %h %d %H:%M %Z %Y") %}
+         {% set alarm_time = }(((state_attr('sensor.ENTITY_next_alarm', 'Time in Milliseconds') | int / 1000) - 1*60 ) | timestamp_custom('%a %h %d %H:%M %Z %Y')) %}
+         {% set result = cur_time == alarm_time %}
+         {{ result }}
+    condition: []
+    action:
+    - device_id: SHADES_DEVICE_ID
+      domain: cover
+      entity_id: cover.SHADES_ENTITY
+      type: set_position
+      position: 40
+    mode: single
