@@ -1,0 +1,101 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        feeds_url: &feeds-url http://IP_ADDRESS:PORT/api/feedings
+        headers: &headers
+          Authorization: !secret baby_buddy_token
+
+sensor:
+    # sensor.daily_feeding_amount
+  - platform: rest
+    name: Daily Feeding Amount
+    unique_id: daily_feeding_amount
+    resource: *feeds-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(amt=0) %}
+      {% for item in data %}
+        {% set end = (item.end | as_datetime | as_local).date() %}
+        {% if end == today and item.amount is number %}
+          {% set ns.amt = ns.amt + item.amount %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.amt %}
+      {{ result }}
+    json_attributes:
+      - results
+
+    # sensor.daily_feeding_count
+  - platform: rest
+    name: Daily Feeding Count
+    unique_id: daily_feeding_count
+    resource: *feeds-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(ct=0) %}
+      {% for item in data %}
+        {% set end = (item.end | as_datetime | as_local).date() %}
+        {% if end == today %}
+          {% set ns.ct = ns.ct + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.ct %}
+      {{ result }}
+
+    # sensor.daily_feeding_times
+  - platform: rest
+    name: Daily Feeding Times
+    unique_id: daily_feeding_times
+    resource: *feeds-url
+    headers: *headers
+    value_template: 'ok'
+#    json_attributes_path: '$'
+    json_attributes:
+      - results
+
+rest_command:
+  update_feeding:
+    url: >-
+      {% set url = 'http://IP_ADDRESS:PORT/api/feedings/' %}
+      {% set id = state_attr('sensor.teddy_last_feed_data','id') | string %}
+      {% set result = url + id %}
+      {{ result }}
+    method: patch
+    headers: *headers
+    payload: >-
+      {% set types = {
+          'Breast Milk': 'breast milk',
+          'Fortified Breast Milk': 'fortified breast milk',
+          'Formula': 'formula',
+          'Solid Foods': 'solid food',
+        } 
+      %}
+      {% set methods = {
+          'Parent Fed': 'parent fed',
+          'Self Fed': 'self fed',
+          'Left Breast': 'left breast',
+          'Right Breast': 'right breast',
+          'Both Breasts': 'both breasts',
+        } 
+      %}
+      {% set start = today_at(states('input_datetime.teddy_last_feed_start')) %}
+      {% set end = today_at(states('input_datetime.teddy_last_feed_end')) %}
+      {% set amount = states('input_number.teddy_last_feed_amount') %}
+      {% set type = states('input_select.teddy_last_feeding_type') %}
+      {% set type = types[type] %}
+      {% set method = states('input_select.teddy_last_feeding_method') %}
+      {% set method = methods[method] %}
+      {% set spit = "Spit: " + states('input_select.teddy_last_feed_spit_up') %}
+      {% set notes = states('input_text.teddy_last_feed_notes') %}
+      {% if notes not in ["", "unknown", "none", none] %}
+        {% set notes = spit + ';' + notes %}
+      {% else %}
+        {% set notes = spit %}
+      {% endif %}
+      {"start":"{{ start }}", "end": "{{ end }}", "amount": "{{ amount}}", "method": "{{method}}", "type": "{{type}}", "notes": "{{notes}}"}
+    content_type: "application/json"

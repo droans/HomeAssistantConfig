@@ -1,0 +1,133 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        bad_states: &bad-states
+          - unknown
+          - unavailable
+          - 'none'
+          - 'null'
+
+automation:
+  - alias: Baby-Baby Diaper Button Pressed
+    id: baby_diaper_button_pressed
+    mode: single
+    trigger:
+      - platform: state
+        entity_id:
+          - !include /const/baby_buddy/last_action_switch_entity.yaml
+        attribute: last_updated
+        for:
+          seconds: 2
+    variables:
+      bad_states: *bad-states
+    condition:
+      - condition: template
+        value_template: >-
+          {% set st = trigger.to_state.state not in bad_states and trigger.from_state.state not in bad_states %}
+          {% set presses = trigger.to_state.attributes.press_count <= 3 %}
+          {% set result = st and presses %}
+          {{ result }}
+    action:
+      - service: babybuddy.add_diaper_change
+        data:
+          type: >-
+            {% set types = {
+                1: 'Wet',
+                2: 'Solid',
+                3: 'Wet and Solid'
+              }
+            %}
+            {% set press_ct = trigger.to_state.attributes.press_count | int %}
+            {% set result = types[press_ct] %}
+            {{ result }}
+          color: >-
+            {% set colors = {
+                'on_press': 'Black',
+                'up_press': 'Brown',
+                'down_press': 'Green',
+                'off_press': 'Yellow'
+              }
+            %}
+            {% set press = trigger.to_state.state %}
+            {% set result = colors[press] %}
+            {{ result }}
+          time: >-
+            {{ now() | as_timestamp | timestamp_custom('%H:%M:%S') }}
+        target: 
+          entity_id: sensor.baby_teddy
+      - service: script.update_change_sensors
+
+  - alias: Baby-Update Last Change Inputs
+    id: update_last_change_inputs
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.teddy_last_change_data
+        attribute: data
+    variables:
+      bad_states: *bad-states
+    condition:
+      - condition: template
+        value_template: >-
+          {% set result = trigger.to_state.state not in bad_states %}
+          {{ result }}
+    action:
+      - parallel:
+          - if:
+              condition: template
+              value_template: >-
+                {% set result = trigger.to_state.attributes.data.wet %}
+                {{ result }}
+            then:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.teddy_last_diaper_wet
+            else:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.teddy_last_diaper_wet
+          - if:
+              condition: template
+              value_template: >-
+                {% set att = trigger.to_state.attributes %}
+                {% if att.data is defined and att.data.solid is defined %}
+                  {% set result = att.data.solid %}
+                {% else %}
+                  {% set result = att.solid | default(true) %}
+                {% endif %}
+                {{ result }}
+            then:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.teddy_last_diaper_solid
+            else:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.teddy_last_diaper_solid
+          - service: input_select.select_option
+            data:
+              option: >- 
+                {% set att = trigger.to_state.attributes %}
+                {% if att.data is defined and att.data.color is defined %}
+                  {% set result = att.data.color | title %}
+                {% else %}
+                  {% set result = att.color | title | default('Brown') %}
+                {% endif %}
+                {{ result }}
+            target:
+              entity_id: input_select.teddy_last_diaper_color
+          - service: input_datetime.set_datetime
+            data:
+              time: >-
+                {% set att = trigger.to_state.attributes %}
+                {% if att.data is defined and att.data.time is defined %}
+                  {% set d = att.data.time %}
+                {% else %}
+                  {% set d = att.time %}
+                {% endif %}
+                {% set result = d | as_datetime | as_local | as_timestamp | timestamp_custom("%H:%M:%S") %}
+                {{ result }}
+            target:
+              entity_id: input_datetime.teddy_last_diaper_change_time

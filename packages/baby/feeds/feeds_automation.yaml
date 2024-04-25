@@ -1,0 +1,132 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        bad_states: &bad-states 
+          - unknown
+          - unavailable
+          - 'none'
+          - 'null'
+
+automation:
+  - alias: Baby-Update Last Feed Inputs
+    id: update_last_feed_inputs
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.teddy_last_feed_data
+        attribute: data
+    variables:
+      bad_states: *bad-states
+      data: >-
+        {% set result = trigger.to_state.attributes %}
+        {{ result }}
+    condition:
+      - condition: template
+        value_template: >-
+          {% set state = trigger.to_state.state %}
+          {% set data = trigger.to_state.attributes.data %}
+          {% set is_good_state = state not in bad_states %}
+          {% set is_good_data = data not in bad_states and data is mapping %}
+          {% set result = is_good_state and is_good_data %}
+          {{ result }}
+    action:
+      - parallel:
+          - service: input_number.set_value
+            data:
+              value: >-
+                {{ data.data.amount }}
+            target:
+              entity_id: input_number.teddy_last_feed_amount
+          - service: input_select.select_option
+            data:
+              option: >- 
+                {% set types = {
+                    'breast milk': 'Breast Milk',
+                    'fortified breast milk': 'Fortified Breast Milk',
+                    'formula': 'Formula',
+                    'solid food': 'Solid Foods'
+                  } 
+                %}
+                {% set type = data.data.type %}
+                {% set result = types[type] %}
+                {{ result }}
+            target:
+              entity_id: input_select.teddy_last_feeding_type
+          - service: input_select.select_option
+            data:
+              option: >- 
+                {% set methods = {
+                    'parent fed': 'Parent Fed',
+                    'self fed': 'Self Fed',
+                    'bottle': 'Parent Fed',
+                    'left breast': 'Left Breast',
+                    'right breast': 'Right Breast',
+                    'both breasts': 'Both Breasts',
+                  } 
+                %}
+                {% set method = data.data.method %}
+                {% set result = methods[method] %}
+                {{ result }}
+            target:
+              entity_id: input_select.teddy_last_feeding_method
+
+          - service: input_datetime.set_datetime
+            data:
+              time: >-
+                {% set d = data.data.start %}
+                {% set result = d | as_datetime | as_local | as_timestamp | timestamp_custom("%H:%M:%S") %}
+                {{ result }}
+            target:
+              entity_id: input_datetime.teddy_last_feed_start
+          - service: input_datetime.set_datetime
+            data:
+              time: >-
+                {% set d = data.data.end %}
+                {% set result = d | as_datetime | as_local | as_timestamp | timestamp_custom("%H:%M:%S") %}
+                {{ result }}
+            target:
+              entity_id: input_datetime.teddy_last_feed_end
+          - if:
+              condition: template
+              value_template: >-
+                {% set data = state_attr('sensor.teddy_last_feed_data','data').notes.split(';') %}
+                {% set spit = data[0].split(': ') %}
+                {% if spit | length > 1 %}
+                  {% set result = spit[1] %}
+                  {% if result in ['','None','null','Null','none', none] %}
+                    {% set result = false %}
+                  {% else %}
+                    {% set result = true %}
+                  {% endif %}
+                {% else %}
+                  {% set result = false %}
+                {% endif %}
+                {{ result }}
+            then:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.teddy_last_feed_spit_up
+                data:
+                  option: >- 
+                    {% set data = state_attr('sensor.teddy_last_feed_data','data').notes.split(';') %}
+                    {% set spit = data[0].split(': ') %}
+                    {% set result = spit[1] %}
+                    {{ result }}
+            else:
+              - service: input_select.select_first
+                target:
+                  entity_id: input_select.teddy_last_feed_spit_up
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.teddy_last_feed_notes
+            data:
+              value: >- 
+                {% set notes = state_attr('sensor.teddy_last_feed_data','data').notes.split(';') %}
+                {% if notes | length > 1 %}
+                  {% set result = notes[1] %}
+                {% else %}
+                  {% set result = '' %}
+                {% endif %}
+                {{ result }}

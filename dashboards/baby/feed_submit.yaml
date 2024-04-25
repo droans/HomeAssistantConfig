@@ -1,0 +1,489 @@
+type: custom:vertical-stack-in-card
+cards:
+  - type: custom:decluttering-card
+    template: baby-menu
+    variables:
+      - feed_style: '--ha-card-background: var(--feed-tab-active-card-color);'
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Last Feed
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/feeding
+            secondary: >-
+              {{ states('sensor.teddy_last_feeding','amount') | int(0)}} ml
+
+              {{ relative_time(state_attr('sensor.teddy_last_feeding','end') |
+              as_timestamp(0) | as_datetime).replace('minutes','mins') }} ago 
+
+              {{ state_attr('sensor.teddy_last_feeding','start') |
+              as_timestamp(0) | timestamp_custom('%-I:%M') }} to {{
+              state_attr('sensor.teddy_last_feeding','end') | as_timestamp(0) |
+              timestamp_custom('%-I:%M %p') }}
+            icon: mdi:mother-nurse
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            icon_color: ''
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--feed-chip-icon-color);
+                  --shape-color: var(--feed-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--feed-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                  margin: 0px 0px -5px 0px;
+                  border-radius: 0px;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Feeding
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/baby-feeds
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--feed-tab-active-button-color);
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Feeding
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-feeding
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--feed-tab-inactive-button-color);
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 10px 10px 10px 10px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--feed-primary-text-color);
+          --secondary-text-color: var(--feed-secondary-text-color);
+          --stack-card-gap: 0px !important;
+        }
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: Recent Feeds
+    entities:
+      - type: custom:list-card
+        entity: sensor.teddy_last_two_day_feeds
+        feed_attribute: data
+        columns:
+          - title: Day
+            field: day
+            style:
+              - text-align: center
+          - title: Amount
+            field: amount
+            style:
+              - text-align: center
+          - title: Type
+            field: type
+            style:
+              - text-align: center
+          - title: Start
+            field: start
+            style:
+              - text-align: center
+          - title: End
+            field: end
+            style:
+              - text-align: center
+  - type: custom:decluttering-card
+    template: break-card
+  - type: vertical-stack
+    cards:
+      - type: custom:vertical-stack-in-card
+        horizontal: true
+        card_mod:
+          style: |
+            ha-card {
+              overflow: visible !important;
+            }
+        cards:
+          - type: custom:mushroom-select-card
+            entity: input_select.teddy_feeding_method
+            name: Food Source
+            secondary_info: none
+            card_mod:
+              style: |
+                mushroom-select-option-control {
+                  --mdc-theme-primary: var(--feed-primary-text-color) !important;
+                  --mdc-theme-text-primary-on-background: var(--feed-primary-text-color);
+                  --mdc-ripple-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--feed-chip-icon-color);
+                  --shape-color: var(--feed-chip-shape-color);
+                }
+                ha-card {
+                --primary-text-color: var(--feed-primary-text-color);
+                --secondary-text-color: var(--feed-secondary-text-color);
+                }
+          - type: custom:mushroom-select-card
+            entity: input_select.teddy_feeding_type
+            name: Food Type
+            secondary_info: none
+            card_mod:
+              style: |
+                mushroom-select-option-control {
+                  --mdc-theme-primary: var(--feed-primary-text-color) !important;
+                  --mdc-theme-text-primary-on-background: var(--feed-primary-text-color);
+                  --mdc-ripple-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--feed-chip-icon-color);
+                  --shape-color: var(--feed-chip-shape-color);
+                }
+                ha-card {
+                --primary-text-color: var(--feed-primary-text-color);
+                --secondary-text-color: var(--feed-secondary-text-color);
+                }
+      - type: custom:mushroom-number-card
+        entity: input_number.teddy_feeding_amount
+        display_mode: buttons
+        name: Amount Fed
+        layout: horizontal
+        card_mod:
+          style: |
+            ha-card mushroom-shape-icon {
+              --icon-color: var(--feed-chip-icon-color);
+              --shape-color: var(--feed-chip-shape-color);
+            }
+            ha-card {
+              {% set pct = [100, (states('input_number.teddy_feeding_amount') | int) / 250 * 100] | min %}
+              {% set pct2 = [100, pct + 2] | min %}
+              background-image: linear-gradient(to right, var(--feed-amount-gradient-color) {{pct}}%, rgba(0,0,0,0) {{pct2}}%) ;
+              border-radius: 10px 10px 0px 0px !important;
+              --primary-text-color: var(--feed-primary-text-color);
+              --secondary-text-color: var(--feed-secondary-text-color);
+            }
+      - type: custom:vertical-stack-in-card
+        horizontal: true
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 0px;
+            }
+        cards:
+          - type: custom:time-picker-card
+            hour_mode: 12
+            hour_step: 1
+            minute_step: 5
+            layout:
+              hour_mode: double
+              align_controls: center
+              name: header
+              embedded: false
+              thin: true
+            hide:
+              seconds: true
+            entity: input_datetime.teddy_feeding_start
+            name: Start
+            link_values: true
+            card_mod:
+              style: |
+                :host {
+                  --time-picker-accent-color: var(--feed-time-picker-accent-color);
+                  --time-picker-elements-background-color: var(--feed-time-picker-elements-background-color);
+                  --time-picker-off-color: var(--feed-time-picker-off-color);
+                }
+                ha-card .time-picker-header {
+                  border-radius: 0px 0px 0px 0px;
+                }
+                ha-card .time-picker-row.with-header-name {
+                  border-radius: 0px 0px 0px 8px;
+                  border-left-width: 4px;
+                  border-left-color: var(--feed-time-picker-border);
+                  border-left-style: solid;
+                  border-right-width: 2px;
+                  border-right-color: var(--feed-time-picker-border);
+                  border-right-style: solid;
+                  border-bottom-width: 4px;
+                  border-bottom-color: var(--feed-time-picker-border);
+                  border-bottom-style: solid;
+                }
+          - type: custom:time-picker-card
+            hour_mode: 12
+            hour_step: 1
+            minute_step: 5
+            layout:
+              hour_mode: double
+              align_controls: center
+              name: header
+              embedded: false
+              thin: true
+            hide:
+              seconds: true
+            entity: input_datetime.teddy_feeding_end
+            name: End
+            link_values: true
+            card_mod:
+              style: |
+                :host {
+                  --time-picker-accent-color: var(--feed-time-picker-accent-color);
+                  --time-picker-elements-background-color: var(--feed-time-picker-elements-background-color);
+                  --time-picker-off-color: var(--feed-time-picker-off-color);
+                }
+                ha-card .time-picker-header {
+                  border-radius: 0px 0px 0px 0px;
+                }
+                ha-card .time-picker-row.with-header-name {
+                  border-radius: 0px 0px 8px 0px;
+                  border-left-width: 2px;
+                  border-left-color: var(--feed-time-picker-border);
+                  border-left-style: solid;
+                  border-right-width: 4px;
+                  border-right-color: var(--feed-time-picker-border);
+                  border-right-style: solid;
+                  border-bottom-width: 4px;
+                  border-bottom-color: var(--feed-time-picker-border);
+                  border-bottom-style: solid;
+                }
+      - type: markdown
+        content: '### Spit-Up Amount:'
+      - type: custom:vertical-stack-in-card
+        horizontal: true
+        cards:
+          - type: custom:mushroom-template-card
+            primary: None
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.teddy_feed_spit_up
+              data:
+                option: None
+            icon: mdi:water-off
+            layout: vertical
+            card_mod:
+              style: |
+                {% if states('input_select.teddy_feed_spit_up') == 'None' %}
+                  {% set icon_color = 'feed-spit-active-icon-color' %}
+                  {% set shape_color = 'feed-spit-active-shape-color' %}
+                  {% set bg_color = 'feed-spit-active-background-color' %}
+                {% else %}
+                  {% set icon_color = 'feed-spit-inactive-icon-color' %}
+                  {% set shape_color = 'feed-spit-inactive-shape-color' %}
+                  {% set bg_color = 'feed-spit-inactive-background-color' %}
+                {% endif %}
+                ha-card {
+                  --ha-card-background: var(--{{bg_color}});
+                  --primary-text-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                    --icon-color: var(--{{icon_color}});
+                    --shape-color: var(--{{shape_color}});
+                }
+          - type: custom:mushroom-template-card
+            primary: Little
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.teddy_feed_spit_up
+              data:
+                option: Little
+            icon: mdi:water
+            layout: vertical
+            card_mod:
+              style: |
+                {% if states('input_select.teddy_feed_spit_up') == 'Little' %}
+                  {% set icon_color = 'feed-spit-active-icon-color' %}
+                  {% set shape_color = 'feed-spit-active-shape-color' %}
+                  {% set bg_color = 'feed-spit-active-background-color' %}
+                {% else %}
+                  {% set icon_color = 'feed-spit-inactive-icon-color' %}
+                  {% set shape_color = 'feed-spit-inactive-shape-color' %}
+                  {% set bg_color = 'feed-spit-inactive-background-color' %}
+                {% endif %}
+                ha-card {
+                  --ha-card-background: var(--{{bg_color}});
+                  --primary-text-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                    --icon-color: var(--{{icon_color}});
+                    --shape-color: var(--{{shape_color}});
+                }
+          - type: custom:mushroom-template-card
+            primary: Some
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.teddy_feed_spit_up
+              data:
+                option: Some
+            icon: fas:cloud-rain
+            layout: vertical
+            card_mod:
+              style: |
+                {% if states('input_select.teddy_feed_spit_up') == 'Some' %}
+                  {% set icon_color = 'feed-spit-active-icon-color' %}
+                  {% set shape_color = 'feed-spit-active-shape-color' %}
+                  {% set bg_color = 'feed-spit-active-background-color' %}
+                {% else %}
+                  {% set icon_color = 'feed-spit-inactive-icon-color' %}
+                  {% set shape_color = 'feed-spit-inactive-shape-color' %}
+                  {% set bg_color = 'feed-spit-inactive-background-color' %}
+                {% endif %}
+                ha-card {
+                  --ha-card-background: var(--{{bg_color}});
+                  --primary-text-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                    --icon-color: var(--{{icon_color}});
+                    --shape-color: var(--{{shape_color}});
+                }
+          - type: custom:mushroom-template-card
+            primary: A Lot
+            tap_action:
+              action: call-service
+              service: input_select.select_option
+              target:
+                entity_id: input_select.teddy_feed_spit_up
+              data:
+                option: A Lot
+            icon: fas:cloud-showers-water
+            layout: vertical
+            card_mod:
+              style: |
+                {% if states('input_select.teddy_feed_spit_up') == 'A Lot' %}
+                  {% set icon_color = 'feed-spit-active-icon-color' %}
+                  {% set shape_color = 'feed-spit-active-shape-color' %}
+                  {% set bg_color = 'feed-spit-active-background-color' %}
+                {% else %}
+                  {% set icon_color = 'feed-spit-inactive-icon-color' %}
+                  {% set shape_color = 'feed-spit-inactive-shape-color' %}
+                  {% set bg_color = 'feed-spit-inactive-background-color' %}
+                {% endif %}
+                ha-card {
+                  --ha-card-background: var(--{{bg_color}});
+                  --primary-text-color: var(--feed-primary-text-color);
+                }
+                ha-card mushroom-shape-icon {
+                    --icon-color: var(--{{icon_color}});
+                    --shape-color: var(--{{shape_color}});
+                }
+      - type: custom:lovelace-multiline-text-input-card
+        entity: input_text.teddy_feeding_notes
+        title: 'Notes:'
+        placeholder_text: Type Notes Here...
+        autosave: true
+        buttons:
+          save: 0
+          paste: 0
+          clear: 0
+        show_success_messages: false
+        max_length: 255
+      - type: vertical-stack
+        cards:
+          - type: conditional
+            conditions:
+              - entity: sensor.feed_entry_errors
+                state: ok
+            card:
+              type: custom:layout-card
+              layout_type: custom:grid-layout
+              layout:
+                max_cols: 2
+                grid-template-columns: 33% 67%
+              cards:
+                - type: custom:gap-card
+                - type: custom:button-text-card
+                  entity: script.teddy_feeds
+                  icon: mdi:baby-bottle
+                  title: Submit
+                  tap_action:
+                    action: call-service
+                    service: script.teddy_feeds
+                  large: true
+                  font_color: white
+                  card_mod:
+                    style: |
+                      :host {
+                        --ha-card-background: var(--feed-submit-button-color);
+                      }
+          - type: conditional
+            conditions:
+              - entity: sensor.feed_entry_errors
+                state_not: ok
+            card:
+              type: markdown
+              content: |-
+                {% set errs = states('sensor.feed_entry_errors').split(',')%}
+                {% for item in errs %}
+                • {{item }}{% endfor %}
+              title: 'Errors:'
+      - type: markdown
+        content: >-
+          {% set sensor = 'sensor.teddy_last_feeding' %} {% if
+          is_available(sensor) %}
+            {% set feed_type = state_attr(sensor, 'method') %}
+            {% set amount = state_attr(sensor, 'amount') | int(0) %}
+            {% set type = state_attr(sensor, 'type') %}
+            {% set start = state_attr(sensor, 'start') | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set end = state_attr(sensor, 'end') | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set last_updated = states[sensor].last_updated | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% if feed_type == 'self fed' %}
+              {% set method = 'by himself' %}
+            {% elif feed_type == 'parent fed' %}
+              {% set method = 'by parent' %}
+            {% else %}
+              {% set method = 'from ' + feed_type %}
+            {% endif %}
+            <center> 
+
+            <b>Submitted Data: </b><br>
+
+            Last fed {{ amount }} ml of {{ type }} {{ method }} from {{ start }} to {{ end }} <p>
+
+            Last updated at {{ last_updated }} 
+
+            </center>
+          {% endif %}
+    card_mod:
+      style: |
+        ha-card {
+          overflow: visible !important;
+        }
+card_mod:
+  style: |
+    :host {
+      --primary-text-color: var(--feed-primary-text-color);
+      --mdc-select-fill-color: var(--feed-tab-inactive-card-color);
+      --mdc-select-ink-color: var(--feed-primary-text-color);
+      --mdc-select-dropdown-icon-color: var(--feed-primary-text-color);
+      --secondary-text-color: var(--feed-secondary-text-color);
+      --mdc-theme-primary: var(--feed-tab-inactive-card-color);
+    }
+    mwc-list-item {
+      --mdc-theme-primary: var(--feed-tab-inactive-card-color);
+      
+    }

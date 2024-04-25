@@ -1,0 +1,84 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      services:
+        update_feed_sensors_script: &update-feed-sensors-script script.update_feed_sensors
+
+script:
+  teddy_feeds:
+    alias: Baby-Teddy Feeds From UI
+    sequence:
+      - parallel:
+          - service: babybuddy.add_feeding
+            data:
+              start: >-
+                {% set result = states('input_datetime.teddy_feeding_start') %} {{
+                result }}
+              end: >-
+                {% set result = states('input_datetime.teddy_feeding_end') %} {{ result
+                }}
+              type: >-
+                {% set types = {
+                    'breast milk': 'Breast milk',
+                    'fortified breast milk': 'Fortified breast milk',
+                    'formula': 'Formula',
+                    'solid food': 'Solid food',
+                    'Milk': 'Milk',
+                  }
+                %}
+                {% set type = states('input_select.teddy_feeding_type') %} 
+                {% set result = types.get(type.lower()) %}
+                {{ result }}
+              method: >-
+                {% set method = states('input_select.teddy_feeding_method') %} {% if
+                method == 'Left Breast' %}
+                  {% set result = 'Left breast' %}
+                {% elif method == 'Right Breast' %}
+                  {% set result = 'Right breast' %}
+                {% elif method == 'Both Breasts' %}
+                  {% set result = 'Both breasts' %}
+                {% elif method == 'Parent Fed' %}
+                  {% set result = 'Parent fed' %}
+                {% elif method == 'Solid Foods' %}
+                  {% set result = 'Solid food' %}
+                {% endif %} 
+                {{ result }}
+              amount: >-
+                {% set result = states('input_number.teddy_feeding_amount') %} 
+                {{ result }}
+              notes: >-
+                {% set spit_up = 'Spit: ' + states('input_select.teddy_feed_spit_up') %}
+                {% set notes = states('input_text.teddy_feeding_notes') %} 
+                {% set result = spit_up + '; ' + notes %}
+                {{ result }}
+            target: 
+              entity_id: switch.teddy_timer
+          - service: input_text.set_value
+            data:
+              value: ''
+            target:
+              entity_id: input_text.teddy_feeding_notes
+          - service: input_select.select_option
+            data:
+              option: 'Breast Milk'
+            target:
+              entity_id: input_select.teddy_feeding_type
+      - service: *update-feed-sensors-script
+    mode: single
+
+  update_teddy_feeds:
+    alias: Baby-Update Teddy Feeds
+    mode: restart
+    sequence:
+      - service: rest_command.update_feeding
+      - service: *update-feed-sensors-script
+
+  update_feed_sensors:
+    alias: Baby-Update Feed Sensors
+    mode: restart
+    sequence:
+      - service: homeassistant.update_entity
+        target:
+          entity_id: >-
+            {% set result = label_entities('Update Feed Sensors') %}
+            {{ result }}

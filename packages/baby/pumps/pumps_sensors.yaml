@@ -1,0 +1,230 @@
+template:
+  - sensor:
+
+      # sensor.pump_entry_errors
+    - name: Pump Entry Errors
+      unique_id: pump_entry_errors
+      state: >-
+        {% from 'tools.jinja' import is_available %}
+        {% set ns = namespace(errs=[]) %}
+        {% set attrs = this.attributes %}
+        {% for key, val in attrs.items() %}
+          {% if val is not number and val is not boolean and is_available(val) and val != attrs.friendly_name %}
+            {% set ns.errs = ns.errs + [val] %}
+          {% endif %}
+        {% endfor %}
+
+        {% if ns.errs | length > 0 %}
+          {% set result = ', '.join(ns.errs) %}
+        {% else %}
+          {% set result = 'ok' %}
+        {% endif %}
+        {{ result }}
+
+      attributes:
+        start_before_end: >-
+          {% set start = states('input_datetime.teddy_pumping_start') %}
+          {% set end = states('input_datetime.teddy_pumping_end') %}
+          {% if start > end %}
+            {% set result = 'Start time must be before end time!' %}
+          {% else %}
+            {% set result = false %}
+          {% endif %}
+          {{ result }}
+        start_end_before_now: >-
+          {% set start = today_at(states('input_datetime.teddy_pumping_start')) %}
+          {% set end = today_at(states('input_datetime.teddy_pumping_end')) %}
+          {% if  start > now() and end > now() %}
+            {% set result = 'Start and end times cannot be in future!' %}
+          {% elif start > now() %}
+            {% set result = 'Start time cannot be in future!' %}
+          {% elif end > now() %}
+            {% set result = 'End time cannot be in future!' %}
+          {% else %}
+            {% set result = false %}
+          {% endif %}
+          {{ result }}
+        overlapping_feeds: >-
+          {% set today = now().day %}
+          {% set start = today_at(states('input_datetime.teddy_pumping_start')) %}
+          {% set end = today_at(states('input_datetime.teddy_pumping_end')) %}
+          {% set times = state_attr('sensor.daily_pumping_times','results') %}
+          {% set ns = namespace(today_times=[],result=false) %}
+          {% for item in times %}
+            {% set istart = item.start | as_datetime %}
+            {% set iend = item.end | as_datetime %}
+            {% if istart.day == today and iend.day == today %}
+              {% set starts_during = start >= istart and start <= iend %}
+              {% set ends_during = end >= istart and end <= iend %}
+              {% set includes = start <= istart and end >= iend %}
+              {% if starts_during or ends_during or includes %}
+                {% set fstart = istart | as_timestamp | timestamp_custom('%-I:%M %p') %}
+                {% set fend = iend | as_timestamp | timestamp_custom('%-I:%M %p') %}
+                {% set ns.result = 'Overlaps Prior Pump Time (' + fstart + ' to ' + fend + ')!' %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.result is number and ns.result != false %}
+            {% set result = '' %}
+          {% else %}
+            {% set result = ns.result %}
+          {% endif %}
+          {{ result }}
+    
+      # sensor.teddy_last_pump_data
+    - name: Teddy Last Pump Data
+      unique_id: last_pump_data
+      state: "ok"
+      attributes:
+        data: >-
+          {% if states.sensor.daily_pumping_times is defined %}
+            {% if states.sensor.daily_pumping_times.attributes is defined %}
+              {% if states.sensor.daily_pumping_times.attributes.results is defined %}
+                {% set result = states.sensor.daily_pumping_times.attributes.results[0] %}
+              {% else %}
+                {% set result = none %}
+              {% endif %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        id: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.id %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        start: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.start %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        end: >- 
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.end %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        amount: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.amount %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+
+
+    - name: Teddy Last Day Pumps
+      unique_id: teddy_last_day_pumps
+      state: "OK"
+      attributes:
+        data: >-
+          {% set today = now().date() %}
+          {% set pumps = state_attr('sensor.daily_pumping_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in pumps %}
+            {% set pump_dt = (item.start | as_datetime | as_local) %}
+            {% set pump_start = pump_dt | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set pump_end = (item.end | as_datetime | as_local) | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set pump_date = pump_dt.date() %}
+            {% if pump_date == today %}
+              {% set i_result = {'start': pump_start, 'end': pump_end, 'amount': item.amount | int | string + 'ml' } %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+
+      # sensor.teddy_last_two_day_pumps
+    - name: Teddy Last Two Day Pumps
+      unique_id: teddy_last_two_day_pumps
+      state: "OK"
+      attributes:
+        data: >- 
+          {% set today = now().date() %}
+          {% set yesterday = today - timedelta(days=1) %}
+          {% set feeds = state_attr('sensor.daily_pumping_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in feeds %}
+            {% set feed_dt = (item.start | as_datetime | as_local) %}
+            {% set feed_start = feed_dt | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set feed_end = (item.end | as_datetime | as_local) | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set feed_date = feed_dt.date() %}
+            {% if feed_date >= yesterday %}
+              {% if feed_date == today %}
+                {% set day = 'Today' %}
+              {% else %}
+                {% set day = 'Yesterday' %}
+              {% endif %}
+              {% if ns.results | length > 0 %}
+                {% if ns.results[-1].day != day %}
+                  {% set ns.results = ns.results + [{'start': '', 'end': '', 'amount': '', 'day': ''}] %}
+                {% endif %}
+              {% endif %}
+                {% set i_result = {'start': feed_start, 'end': feed_end, 'amount': item.amount, 'day': day} %}
+                {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+    - name: Teddy Pumps Last Seven Days
+      unique_id: teddy_pumps_last_seven_days
+      state: "OK"
+      attributes:
+        amount: >- 
+          {% set today = now().date() %}
+          {% set start = today + timedelta(days=-6) %}
+          {% set pumps = state_attr('sensor.daily_pumping_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in pumps %}
+            {% set pump_dt = (item.start | as_datetime | as_local) %}
+            {% set pump_start = item.start | as_timestamp %}
+            {% set pump_end = (item.end) %}
+            {% set pump_date = pump_dt.date() %}
+            {% if pump_date >= start %}
+              {% set i_result = [pump_start * 1000, item.amount | int] %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+        pumps: >- 
+          {% set today = now().date() %}
+          {% set start = today + timedelta(days=-6) %}
+          {% set pumps = state_attr('sensor.daily_pumping_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in pumps %}
+            {% set pump_dt = (item.start | as_datetime | as_local) %}
+            {% set pump_start = item.start | as_timestamp %}
+            {% set pump_end = (item.end) %}
+            {% set pump_date = pump_dt.date() %}
+            {% if pump_date >= start %}
+              {% set i_result = [pump_start * 1000, 1 ] %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}

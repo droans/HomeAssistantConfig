@@ -1,0 +1,180 @@
+template:
+  - sensor:
+    - name: Teddy Daily Changes
+      unique_id: teddy_daily_changes
+      state: "OK"
+      attributes:
+        count: >-
+          {% set amt = states('sensor.daily_changes') | int(0) | string %}
+          {% set result = amt + ' diapers' %}
+          {{ result }}
+        types: >-
+          {% set wet = states('sensor.daily_wet_changes') | int(0) | string %}
+          {% set solid = states('sensor.daily_solid_changes') | int(0) | string %}
+          {% set result = wet + ' wet, ' + solid + ' solid' %}
+          {{ result }}
+
+    - name: Time Since Last Change
+      unique_id: time_since_change
+      state: >-
+        {% set time_state = states('sensor.teddy_last_change') | as_timestamp(0) %}
+        {% set result = time_state | timestamp_custom('%-I:%M %p')  %}
+        {{ result }}
+      attributes:
+        rel_time: >-
+          {% set time_state = states('sensor.teddy_last_change') | as_timestamp(0) %}
+          {% set rel_time = relative_time(time_state  | as_datetime) %}
+          {% set rel_time = rel_time.replace('minutes','mins') %}
+          {% set result = rel_time | string + ' ago' %}
+          {{ result }}
+
+      # sensor.teddy_last_day_changes
+    - name: Teddy Last Day Changes
+      unique_id: teddy_last_day_changes
+      state: "OK"
+      attributes:
+        data: >-
+          {% set today = now().date() %}
+          {% set changes = state_attr('sensor.daily_changing_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in changes %}
+            {% set ynd = {true: 'Yes',false: 'No'} %}
+            {% set change_dt = (item.time | as_datetime | as_local) %}
+            {% set change_time = change_dt | as_timestamp | timestamp_custom('%-I:%M %p') %}
+            {% set change_date = change_dt.date() %}
+            {% if change_date == today %}
+              {% set i_result = {'time': change_time, 'solid': ynd[item.solid], 'wet': ynd[item.wet], 'color': item.color.title() } %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+
+      # sensor.teddy_last_change_data
+    - name: Teddy Last Change Data
+      unique_id: teddy_last_change_data
+      state: "ok"
+      attributes:
+        data: >-
+          {% if states.sensor.daily_changing_times is defined %}
+            {% if states.sensor.daily_changing_times.attributes is defined %}
+              {% if states.sensor.daily_changing_times.attributes.results is defined %}
+                {% set result = states.sensor.daily_changing_times.attributes.results[0] %}
+              {% else %}
+                {% set result = none %}
+              {% endif %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        id: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.id %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        time: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.time %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        wet: >- 
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.wet %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        solid: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.solid %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+        color: >-
+          {% if this.attributes is defined %}
+            {% if this.attributes.data is defined %}
+              {% set result = this.attributes.data.color %}
+            {% else %}
+              {% set result = none %}
+            {% endif %}
+          {% else %}
+            {% set result = none %}
+          {% endif %}
+          {{ result }}
+
+    - name: Teddy Changes Last Seven Days
+      unique_id: teddy_changes_last_seven_days
+      state: "OK"
+      attributes:
+        wet: >- 
+          {% set today = now().date() %}
+          {% set start = today + timedelta(days=-6) %}
+          {% set changes = state_attr('sensor.daily_changing_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in changes %}
+            {% set changes_dt = (item.time | as_datetime | as_local) %}
+            {% set change_time = item.time | as_timestamp %}
+            {% set change_date = changes_dt.date() %}
+            {% if change_date >= start and item.wet %}
+              {% set i_result = [change_time * 1000, 1] %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+        solid: >- 
+          {% set today = now().date() %}
+          {% set start = today + timedelta(days=-6) %}
+          {% set changes = state_attr('sensor.daily_changing_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in changes %}
+            {% set changes_dt = (item.time | as_datetime | as_local) %}
+            {% set change_time = item.time | as_timestamp %}
+            {% set change_date = changes_dt.date() %}
+            {% if change_date >= start and item.solid %}
+              {% set i_result = [change_time * 1000, 1] %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}
+        total: >- 
+          {% set today = now().date() %}
+          {% set start = today + timedelta(days=-6) %}
+          {% set changes = state_attr('sensor.daily_changing_times','results') %}
+          {% set ns = namespace(results=[]) %}
+          {% for item in changes %}
+            {% set changes_dt = (item.time | as_datetime | as_local) %}
+            {% set change_time = item.time | as_timestamp %}
+            {% set change_date = changes_dt.date() %}
+            {% if change_date >= start %}
+              {% set i_result = [change_time * 1000, 1] %}
+              {% set ns.results = ns.results + [i_result] %}
+            {% endif %}
+          {% endfor %}
+          {% set result = ns.results %}
+          {{ result }}

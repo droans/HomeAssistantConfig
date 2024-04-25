@@ -1,0 +1,29 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+      services:
+        update_pump_sensors_script: &update-pump-sensors-script script.update_pump_sensors
+
+script:
+  teddy_pumping:
+    alias: Baby-Record Pumping
+    mode: single
+    sequence:
+      - service: rest_command.pumping
+      - service: *update-pump-sensors-script
+  update_teddy_pumping:
+    alias: Baby-Update Pumping
+    mode: restart
+    sequence:
+      - service: rest_command.update_pumping
+      - service: *update-pump-sensors-script
+  update_pump_sensors:
+    alias: Baby-Update Pump Sensors
+    mode: restart
+    sequence:
+      - service: homeassistant.update_entity
+        target:
+          entity_id: >-
+            {% set result = label_entities('Update Pump Sensors') %}
+            {{ result }}

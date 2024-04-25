@@ -1,0 +1,261 @@
+type: custom:vertical-stack-in-card
+cards:
+  - type: custom:decluttering-card
+    template: baby-menu
+    variables:
+      - pump_style: '--ha-card-background: var(--pump-tab-active-card-color);'
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Last Pump
+            secondary: >-
+              {{ state_attr('sensor.teddy_last_pumping','amount') | int(0)}} ml
+
+              {{ state_attr('sensor.teddy_last_pumping','start') |
+              as_timestamp(0) | timestamp_custom('%-I:%M') }} to {{
+              state_attr('sensor.teddy_last_pumping','end') | as_timestamp(0) |
+              timestamp_custom('%-I:%M %p') }}
+            icon: mdi:baby-bottle
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/pumping
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--pump-chip-icon-color);
+                  --shape-color: var(--pump-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--pump-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                  margin: 0px 0px -6px 0px;
+                  border-radius: 0px;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Pumping
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/add-pumping
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--pump-tab-inactive-button-color);
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Pumping
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-pumping
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--pump-tab-active-button-color);
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 10px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--pump-primary-text-color);
+          --secondary-text-color: var(--pump-secondary-text-color);
+          --stack-card-gap: 0px !important;
+        }        
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: Recent Pumps
+    entities:
+      - type: custom:list-card
+        entity: sensor.teddy_last_two_day_pumps
+        feed_attribute: data
+        columns:
+          - title: Day
+            field: day
+            style:
+              - text-align: center
+          - title: Amount
+            field: amount
+            style:
+              - text-align: center
+          - title: Start
+            field: start
+            style:
+              - text-align: center
+          - title: End
+            field: end
+            style:
+              - text-align: center
+  - type: custom:decluttering-card
+    template: break-card
+  - type: custom:mushroom-number-card
+    entity: input_number.teddy_last_pump_amount
+    display_mode: buttons
+    layout: horizontal
+    name: Amount Pumped
+    card_mod:
+      style: |
+        ha-card mushroom-shape-icon {
+          --icon-color: var(--pump-chip-icon-color);
+          --shape-color: var(--pump-chip-shape-color);
+        }
+        ha-card {
+          {% set pct = [100, (states('input_number.teddy_last_pump_amount') | int) / 800 * 100] | min %}
+          {% set pct2 = [100, pct + 2] | min %}
+          background-image: linear-gradient(to right, var(--pump-amount-gradient-color) {{pct}}%, rgba(0,0,0,0) {{pct2}}%) ;
+          border-radius: 10px 10px 0px 0px !important;
+        }
+  - type: vertical-stack
+    cards:
+      - type: custom:vertical-stack-in-card
+        horizontal: true
+        card_mod:
+          style: |
+            ha-card {
+              border-radius: 0px;
+            }
+        cards:
+          - type: custom:time-picker-card
+            hour_mode: 12
+            hour_step: 1
+            minute_step: 5
+            layout:
+              hour_mode: double
+              align_controls: center
+              name: header
+              embedded: false
+              thin: true
+            hide:
+              seconds: true
+            entity: input_datetime.teddy_last_pump_start
+            name: Start
+            link_values: true
+            card_mod:
+              style: |
+                :host {
+                  --time-picker-accent-color: var(--pump-time-picker-accent-color);
+                  --time-picker-elements-background-color: var(--pump-time-picker-elements-background-color);
+                  --time-picker-off-color: var(--pump-time-picker-off-color);
+                }
+                ha-card .time-picker-header {
+                  border-radius: 0px;
+                }
+                ha-card .time-picker-row.with-header-name {
+                  border-radius: 0px 0px 0px 8px;
+                  border-left: 4px solid var(--pump-time-picker-border);
+                  border-right: 2px solid var(--pump-time-picker-border);
+                  border-bottom: 4px solid var(--pump-time-picker-border);
+                }
+          - type: custom:time-picker-card
+            hour_mode: 12
+            hour_step: 1
+            minute_step: 5
+            layout:
+              hour_mode: double
+              align_controls: center
+              name: header
+              embedded: false
+              thin: true
+            hide:
+              seconds: true
+            entity: input_datetime.teddy_last_pump_end
+            name: End
+            link_values: true
+            card_mod:
+              style: |
+                :host {
+                  --time-picker-accent-color: var(--pump-time-picker-accent-color);
+                  --time-picker-elements-background-color: var(--pump-time-picker-elements-background-color);
+                  --time-picker-off-color: var(--pump-time-picker-off-color);
+                }
+                ha-card .time-picker-header {
+                  border-radius: 0px;
+                }
+                ha-card .time-picker-row.with-header-name {
+                  border-radius: 0px 0px 8px 0px;
+                  border-left-width: 2px;
+                  border-left-color: var(--pump-time-picker-border);
+                  border-left-style: solid;
+                  border-right-width: 4px;
+                  border-right-color: var(--pump-time-picker-border);
+                  border-right-style: solid;
+                  border-bottom-width: 4px;
+                  border-bottom-color: var(--pump-time-picker-border);
+                  border-bottom-style: solid;
+                }
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      max_cols: 2
+      grid-template-columns: 33% 67%
+    cards:
+      - type: custom:gap-card
+      - type: custom:button-text-card
+        entity: script.update_teddy_pumping
+        icon: mdi:baby-bottle
+        title: Submit
+        tap_action:
+          action: call-service
+          service: script.update_teddy_pumping
+        large: true
+        font_color: white
+        card_mod:
+          style: |
+            :host {
+              --ha-card-background: var(--pump-submit-button-color);
+            }
+  - type: markdown
+    content: >-
+      {% set sensor = 'sensor.teddy_last_pumping' %} {% if is_available(sensor)
+      %}
+        {% set amount = state_attr(sensor, 'amount') | int(0) %}
+        {% set start = state_attr(sensor, 'start') | as_timestamp | timestamp_custom('%-I:%M %p') %}
+        {% set end = state_attr(sensor, 'end') | as_timestamp | timestamp_custom('%-I:%M %p') %}
+        {% set last_updated = states[sensor].last_updated | as_timestamp | timestamp_custom('%-I:%M %p') %}
+        <center> 
+
+        <b>Submitted Data: </b><br>
+
+        Last pumped {{ amount }} ml from {{ start }} to {{ end }} <p>
+
+        Last updated at {{last_updated }} 
+
+        </center>
+      {% endif %}
+card_mod:
+  style: |
+    :host {
+      --primary-text-color: var(--pump-primary-text-color);
+      --mdc-select-fill-color: var(--pump-tab-inactive-card-color);
+      --mdc-select-ink-color: var(--pump-primary-text-color);
+      --mdc-select-dropdown-icon-color: var(--pump-primary-text-color);
+      --secondary-text-color: var(--pump-secondary-text-color);
+      --mdc-theme-primary: var(--pump-tab-inactive-card-color);
+    }
+    ha-card {
+      overflow: visible !important;
+    }
+    mwc-list-item {
+      --mdc-theme-primary: var(--pump-tab-inactive-card-color);
+    }

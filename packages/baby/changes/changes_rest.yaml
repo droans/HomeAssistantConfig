@@ -1,0 +1,93 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        changes_url: &changes-url http://IP_ADDRESS:PORT/api/changes
+        headers: &headers
+          Authorization: !secret baby_buddy_token
+sensor:
+    # sensor.daily_changing_times
+  - platform: rest
+    name: Daily Changing Times
+    unique_id: daily_changing_times
+    resource: *changes-url
+    headers: *headers
+    value_template: 'ok'
+#    json_attributes_path: '$'
+    json_attributes:
+      - results
+
+    # sensor.daily_changes
+  - platform: rest
+    name: Daily Changes
+    unique_id: daily_changes
+    resource: *changes-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(ct=0) %}
+      {% for item in data %}
+        {% set d = (item.time | as_datetime | as_local).date() %}
+        {% if d == today %}
+          {% set ns.ct = ns.ct + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.ct %}
+      {{ result }}
+
+    # sensor.daily_wet_changes
+  - platform: rest
+    name: Daily Wet Changes
+    unique_id: daily_wet_changes
+    resource: *changes-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(ct=0) %}
+      {% for item in data %}
+        {% set d = (item.time | as_datetime | as_local).date() %}
+        {% if d == today and item.wet %}
+          {% set ns.ct = ns.ct + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.ct %}
+      {{ result }}
+
+    # sensor.daily_solid_changes
+  - platform: rest
+    name: Daily Solid Changes
+    unique_id: daily_solid_changes
+    resource: *changes-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(ct=0) %}
+      {% for item in data %}
+        {% set d = (item.time | as_datetime | as_local).date() %}
+        {% if d == today and item.solid %}
+          {% set ns.ct = ns.ct + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.ct %}
+      {{ result }}
+
+
+rest_command:
+  update_change:
+    url: >-
+      {% set url = 'http://IP_ADDRESS:PORT/api/changes/' %}
+      {% set id = state_attr('sensor.teddy_last_change_data','id') | string %}
+      {% set result = url + id + '/' %}
+      {{ result }}
+    method: patch
+    headers: *headers
+    payload: >-
+      {% set time = today_at(states('input_datetime.teddy_last_diaper_change_time')) %}
+      {% set wet = (states('input_boolean.teddy_last_diaper_wet') == 'on' | string) | lower %}
+      {% set solid = (states('input_boolean.teddy_last_diaper_solid') == 'on' | string) | lower %}
+      {% set color = states('input_select.teddy_last_diaper_color') | lower %}
+      {"child": 2, "time": "{{time}}", "wet": "{{wet}}", "solid": "{{solid}}", "color": "{{color}}", "amount": null, "notes": null, "tags": []}
+    content_type: "application/json"

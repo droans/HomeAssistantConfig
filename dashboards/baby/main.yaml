@@ -1,0 +1,374 @@
+type: custom:vertical-stack-in-card
+cards:
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Feeds
+        secondary: ''
+        icon: ''
+        layout: vertical
+        tap_action:
+          action: navigate
+          navigation_path: /lovelace/feeding
+        card_mod:
+          style: |
+            ha-card {
+              background-color: var(--feed-card-header-color);
+              border-radius: 0px;
+            }
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >
+              {{ relative_time(state_attr('sensor.teddy_last_feeding','end') |
+              as_timestamp(0) | as_datetime).replace('minutes','mins') }} ago 
+            secondary: >-
+              {{ state_attr('sensor.teddy_last_feeding','amount') | int}} ml
+
+              {{ state_attr('sensor.teddy_last_feeding','start') |
+              as_timestamp(0) | timestamp_custom('%-I:%M') }} to {{
+              state_attr('sensor.teddy_last_feeding','end') | as_timestamp(0) |
+              timestamp_custom('%-I:%M %p') }}
+            icon: mdi:mother-nurse
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            icon_color: ''
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--feed-chip-icon-color);
+                  --shape-color: var(--feed-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--feed-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                      margin: 0px;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Feeding
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/baby-feeds
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--record-feed-button-color);
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Feeding
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-feeding
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--update-feed-button-color);
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 10px 10px 0px 0px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--feed-primary-text-color);
+          --secondary-text-color: var(--feed-secondary-text-color);
+        }        
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Changes
+        secondary: ''
+        icon: ''
+        layout: vertical
+        card_mod:
+          style: |
+            ha-card {
+              background-color: var(--change-card-header-color);
+              border-radius: 0px;
+            }
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >
+              {{ relative_time(state_attr('sensor.teddy_last_change','time') |
+              as_timestamp(0) | as_datetime).replace('minutes','mins') }} ago 
+            secondary: >-
+              {% set sensor = 'sensor.teddy_last_change' %}  {% if
+              is_available(sensor) %}
+                {% set is_wet = state_attr(sensor, 'wet') %}
+                {% set is_solid = state_attr(sensor, 'solid') %}
+                {% if is_wet is true and is_solid is true %}
+                  {% set r = 'Wet and Solid' %}
+                {% elif is_solid is true %}
+                  {% set r = 'Solid' %}
+                {% elif is_wet is true %}
+                  {% set r = 'Wet' %}
+                {% else %}
+                  {% set r = "Can't determine type" %}
+                {% endif %}
+                {% set change_time = states('sensor.teddy_last_change') | as_timestamp |timestamp_custom('%-I:%M %p') %}
+              {% else %}
+                {% set r = 'Unknown' %}
+                {% set change_time = '' %}
+              {% endif %}  {{ r }}  {{change_time}}
+            icon: mdi:mother-nurse
+            multiline_secondary: true
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/changing
+            layout: horizontal
+            fill_container: true
+            icon_color: ''
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--change-chip-icon-color);
+                  --shape-color: var(--change-chip-shape-color);
+                }
+                :host ha-card {
+                  background: none;
+                  background-color: none;
+                  background-color: var(--change-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Change
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/baby-poops
+                card_mod:
+                  style: |
+                    :host ha-card {
+                      background-color: var(--record-change-button-color);
+                      border: none;
+                    }
+                    ha-card {
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Feeding
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-changing
+                card_mod:
+                  style: |
+                    :host ha-card {
+                      background-color: var(--update-change-button-color);
+                      border: none;
+                    }
+                    ha-card {
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 0px 0px 0px 0px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--change-primary-text-color);
+          --secondary-text-color: var(--change-secondary-text-color);
+        }        
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Pumps
+        secondary: ''
+        icon: ''
+        layout: vertical
+        card_mod:
+          style: |
+            ha-card {
+              background-color: var(--pump-card-header-color);
+              border-radius: 0px;
+            }
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >
+              {{ relative_time(state_attr('sensor.teddy_last_pumping','end') |
+              as_timestamp(0) | as_datetime).replace('minutes','mins') }} ago 
+            secondary: >-
+              {{ state_attr('sensor.teddy_last_pumping','amount') | int(0)}} ml
+
+              {{ state_attr('sensor.teddy_last_pumping','start') |
+              as_timestamp(0) | timestamp_custom('%-I:%M') }} to {{
+              state_attr('sensor.teddy_last_pumping','end') | as_timestamp(0) |
+              timestamp_custom('%-I:%M %p') }}
+            icon: mdi:mother-nurse
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/pumping
+            icon_color: ''
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--pump-chip-icon-color);
+                  --shape-color: var(--pump-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--pump-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                      margin: 0px;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Pumping
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/add-pumping
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-color: var(--record-pump-button-color);
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Pumping
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-pumping
+                card_mod:
+                  style: |
+                    ha-card {
+                      background-color: var(--update-pump-button-color);
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 0px 0px 0px 0px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--pump-primary-text-color);
+          --secondary-text-color: var(--pump-secondary-text-color);
+        }        
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: custom:mushroom-template-card
+        primary: Sleep
+        secondary: ''
+        icon: ''
+        layout: vertical
+        card_mod:
+          style: |
+            ha-card {
+              background-color: var(--sleep-card-header-color);
+              border-radius: 0px;
+            }
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: >
+              {{ relative_time(state_attr('sensor.teddy_last_feeding','end') |
+              as_timestamp(0) | as_datetime).replace('minutes','mins') }} ago 
+            secondary: >-
+              {% set today_sleep = states('sensor.teddy_sleep_today') %}  {% set
+              today_hrs = (today_sleep | float) | round(0, 'floor')  %}  {% set
+              today_mins = (((today_sleep | float) * 60) % 60) | round(0) %}  {%
+              set today_mins = '%02d' % today_mins %} {% set past_day_sleep =
+              states('sensor.teddy_sleep_past_24_hours') %}  {% set past_day_hrs
+              = (past_day_sleep | float) | round(0, 'floor')  %}  {% set
+              past_day_mins = (((past_day_sleep | float) * 60) % 60) | round(0)
+              %}  {% set past_day_mins = '%02d' % past_day_mins %} Total Today:
+              {{ today_hrs }}:{{ today_mins}} 
+
+              Past Day: {{ past_day_hrs }}:{{ past_day_mins}} 
+            icon: mdi:mother-nurse
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            icon_color: ''
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/sleeping
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--sleep-chip-icon-color);
+                  --shape-color: var(--sleep-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--sleep-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                      margin: 0px;
+                }
+          - type: custom:mushroom-template-card
+            primary: View Camera
+            secondary: ''
+            icon: ''
+            layout: vertical
+            fill_container: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-cameras/nursery-camera
+            card_mod:
+              style: |
+                ha-card {
+                  background-color: var(--sleep-camera-button-color);
+                  border-radius: 0px;
+                }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 0px 0px 20px 20px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--sleep-primary-text-color);
+          --secondary-text-color: var(--sleep-secondary-text-color);
+        }
+card_mod:
+  style: |
+    :host {
+      --stack-card-gap: 0px !important;
+    }

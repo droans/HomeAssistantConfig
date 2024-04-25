@@ -1,0 +1,54 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        bad_states: &bad-states 
+          - unknown
+          - unavailable
+          - 'none'
+          - 'null'
+
+automation:
+  - alias: Baby-Update Last Pump Inputs
+    id: update_last_pump_inputs
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.teddy_last_pump_data
+        attribute: data
+    variables:
+      bad_states: *bad-states
+      data: >-
+        {% set result = trigger.to_state.attributes %}
+        {{ result }}
+    condition:
+      - condition: template
+        value_template: >-
+          {% set result = trigger.to_state.state not in bad_states and trigger.to_state.attributes.data is mapping %}
+          {{ result }}
+    action:
+      - parallel:
+          - service: input_number.set_value
+            data:
+              value: >-
+                {% set result = states.sensor.teddy_last_pump_data.attributes.data.amount | float %}
+                {{ result }}
+            target:
+              entity_id: input_number.teddy_last_pump_amount
+          - service: input_datetime.set_datetime
+            data:
+              time: >-
+                {% set d = states.sensor.teddy_last_pump_data.attributes.data.start %}
+                {% set result = d | as_datetime | as_local | as_timestamp | timestamp_custom("%H:%M:%S") %}
+                {{ result }}
+            target:
+              entity_id: input_datetime.teddy_last_pump_start
+          - service: input_datetime.set_datetime
+            data:
+              time: >-
+                {% set d = states.sensor.teddy_last_pump_data.attributes.data.end %}
+                {% set result = d | as_datetime | as_local | as_timestamp | timestamp_custom("%H:%M:%S") %}
+                {{ result }}
+            target:
+              entity_id: input_datetime.teddy_last_pump_end

@@ -1,0 +1,82 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      misc:
+        pumps_url: &pumps-url http://IP_ADDRESS:PORT/api/pumping
+        headers: &headers
+          Authorization: !secret baby_buddy_token
+
+sensor:
+    # sensor.daily_pumping_times
+  - platform: rest
+    name: Daily Pumping Times
+    unique_id: daily_pumping_times
+    resource: *pumps-url
+    headers: *headers
+    value_template: 'ok'
+    json_attributes:
+      - results
+
+  - platform: rest
+    name: Daily Pumping Amount
+    unique_id: daily_pumping_amount
+    resource: *pumps-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(amt=0) %}
+      {% for item in data %}
+        {% set end = (item.end | as_datetime | as_local).date() %}
+        {% if end == today  and item.amount is number %}
+          {% set ns.amt = ns.amt + item.amount %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.amt %}
+      {{ result }}
+
+  - platform: rest
+    name: Daily Pumping Count
+    unique_id: daily_pumping_count
+    resource: *pumps-url
+    headers: *headers
+    value_template: >
+      {% set data = value_json.results %}
+      {% set today =  now().date() %}
+      {% set ns = namespace(ct=0) %}
+      {% for item in data %}
+        {% set end = (item.end | as_datetime | as_local).date() %}
+        {% if end == today  %}
+          {% set ns.ct = ns.ct + 1 %}
+        {% endif %}
+      {% endfor %}
+      {% set result = ns.ct %}
+      {{ result }}
+
+rest_command:
+  pumping:
+    url: 'http://IP_ADDRESS:PORT/api/pumping/'
+    method: post
+    headers: *headers
+    payload: >-
+      {% set start = today_at(states('input_datetime.teddy_pumping_start')) %}
+      {% set end = today_at(states('input_datetime.teddy_pumping_end')) %}
+      {% set amount = states('input_number.pumping_amount') %}
+      {% set child_no = 2 %}
+      {"child":{{child_no}}, "start":"{{ start }}", "end": "{{ end }}", "amount": {{ amount}}}
+    content_type: "application/json"
+
+  update_pumping:
+    url: >-
+      {% set url = 'http://IP_ADDRESS:PORT/api/pumping/' %}
+      {% set id = state_attr('sensor.teddy_last_pump_data','id') | string %}
+      {% set result = url + id %}
+      {{ result }}
+    method: patch
+    headers: *headers
+    payload: >-
+      {% set start = today_at(states('input_datetime.teddy_last_pump_start')) %}
+      {% set end = today_at(states('input_datetime.teddy_last_pump_end')) %}
+      {% set amount = states('input_number.teddy_last_pump_amount') %}
+      {"start":"{{ start }}", "end": "{{ end }}", "amount": {{ amount}}}
+    content_type: "application/json"

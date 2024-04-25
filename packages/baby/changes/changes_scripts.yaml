@@ -1,0 +1,51 @@
+homeassistant:
+  customize:
+    package.node_anchors: 
+      services:
+        update_change_script: &update-change-script script.update_change_sensors
+
+script:
+  diaper_change:
+    alias: Baby-Diaper Change From UI
+    sequence:
+    - service: babybuddy.add_diaper_change
+      data:
+        time: >-
+          {% set result = states('input_datetime.teddy_diaper_change_time') %}
+          {{ result }}
+        type: >-
+           {% set solid = states('input_boolean.teddy_diaper_solid') == 'on' %}
+            {% set wet = states('input_boolean.teddy_diaper_wet') == 'on' %} 
+            {% if solid and wet %}
+              {% set result = 'Wet and Solid' %}
+            {% elif solid %}
+              {% set result = 'Solid' %}
+            {% elif wet %}
+              {% set result = 'Wet' %}
+            {% endif %} 
+            {{ result }}
+        color: >-
+          {% set result = states('input_select.teddy_diaper_color') %} 
+          {{ result }}
+        notes: >- 
+          {% set result = states('input_text.teddy_diaper_notes') %} 
+          {{ result }}
+      target: 
+        entity_id: sensor.baby_teddy
+    - service: *update-change-script
+    mode: single
+  update_teddy_changes:
+    alias: Baby-Update Teddy Changes
+    mode: restart
+    sequence:
+      - service: rest_command.update_change
+      - service: *update-change-script
+  update_change_sensors:
+    alias: Baby-Update Change Sensors
+    mode: restart
+    sequence:
+      - service: homeassistant.update_entity
+        target:
+          entity_id: >-
+            {% set result = label_entities('Update Baby Change') %}
+            {{ result }}

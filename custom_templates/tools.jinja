@@ -1,0 +1,14 @@
+{% macro is_available(entity_id) %}
+  {% set bad_states = [
+          'unknown',
+          'unavailable'
+      ] 
+  %}
+  {% set entity_state = states(entity_id) %}
+  {% if entity_state in bad_states %}
+      {% set result = false %}
+  {% else %}
+      {% set result = true %}
+  {% endif %}
+  {{ result }}
+{% endmacro %}

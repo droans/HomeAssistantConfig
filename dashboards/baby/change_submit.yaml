@@ -1,0 +1,266 @@
+type: custom:vertical-stack-in-card
+cards:
+  - type: custom:decluttering-card
+    template: baby-menu
+    variables:
+      - change_style: '--ha-card-background: var(--change-tab-active-card-color);'
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Last Change
+            secondary: >-
+              {% set sensor = 'sensor.teddy_last_change' %}  {% if
+              is_available(sensor) %}
+                {% set is_wet = state_attr(sensor, 'wet') %}
+                {% set is_solid = state_attr(sensor, 'solid') %}
+                {% if is_wet is true and is_solid is true %}
+                  {% set r = 'Wet and Solid' %}
+                {% elif is_solid is true %}
+                  {% set r = 'Solid' %}
+                {% elif is_wet is true %}
+                  {% set r = 'Wet' %}
+                {% else %}
+                  {% set r = "Can't determine type" %}
+                {% endif %}
+                {% set change_time_rel = relative_time(states('sensor.teddy_last_change') | as_timestamp(0) | as_datetime).replace('minutes','mins') %} 
+                {% set change_time = states('sensor.teddy_last_change') | as_timestamp |timestamp_custom('%-I:%M %p') %}
+              {% else %}
+                {% set r = 'Unknown' %}
+                {% set change_time_rel = '' %}
+                {% set change_time = '' %}
+              {% endif %}  {{ r }}  {{ change_time_rel }} ({{change_time}})
+            icon: mdi:human-baby-changing-table
+            multiline_secondary: true
+            layout: horizontal
+            fill_container: true
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/changing
+            card_mod:
+              style: |
+                ha-card mushroom-shape-icon {
+                  --icon-color: var(--change-chip-icon-color);
+                  --shape-color: var(--change-chip-shape-color);
+                }
+                :host ha-card {
+                  background-color: var(--change-card-info-color);
+                  border: none;
+                }
+                ha-card {
+                  background: none;
+                  margin: 0px 0px -5.5px 0px;
+                  border-radius: 0px;
+                }
+          - type: vertical-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Record Change
+                secondary: ''
+                icon: ''
+                layout: vertical
+                fill_container: true
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/baby-poops
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--change-tab-active-button-color);
+                      border-radius: 0px;
+                    }
+              - type: custom:mushroom-template-card
+                primary: Update Last Change
+                secondary: ''
+                icon: ''
+                fill_container: true
+                layout: vertical
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/update-changing
+                card_mod:
+                  style: |
+                    ha-card {
+                      --ha-card-background: var(--change-tab-inactive-button-color);
+                      border-radius: 0px;
+                    }
+    card_mod:
+      style: |
+        ha-card {
+          border-radius: 10px;
+          margin: 0px;
+        }
+        :host {
+          --primary-text-color: var(--change-primary-text-color);
+          --secondary-text-color: var(--change-secondary-text-color);
+          --stack-card-gap: 0px !important;
+        }        
+  - type: custom:fold-entity-row
+    head:
+      type: section
+      label: Changes Today
+    entities:
+      - type: custom:list-card
+        entity: sensor.teddy_last_day_changes
+        feed_attribute: data
+        columns:
+          - title: Time
+            field: time
+            style:
+              - text-align: center
+          - title: Solid
+            field: solid
+            style:
+              - text-align: center
+          - title: Wet
+            field: wet
+            style:
+              - text-align: center
+          - title: Color
+            field: color
+            style:
+              - text-align: center
+  - type: custom:decluttering-card
+    template: break-card
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      max_cols: 3
+      grid-template-columns: 25% 25% 50%
+    cards:
+      - type: custom:mushroom-entity-card
+        entity: input_boolean.teddy_diaper_wet
+        fill_container: true
+        name: Wet
+        secondary_info: none
+        primary_info: name
+        layout: vertical
+        tap_action:
+          action: toggle
+      - type: custom:mushroom-entity-card
+        entity: input_boolean.teddy_diaper_solid
+        secondary_info: none
+        tap_action:
+          action: toggle
+        icon_color: brown
+        primary_info: name
+        layout: vertical
+        name: Solid
+        fill_container: true
+      - type: custom:mushroom-select-card
+        entity: input_select.teddy_diaper_color
+        name: Color
+        secondary_info: none
+        card_mod:
+          style: |
+            mushroom-select-option-control {
+              --mdc-theme-primary: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-color) !important;
+              --mdc-theme-text-primary-on-background: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-color) !important;
+              --mdc-ripple-color: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-color);
+            }
+            ha-card mushroom-shape-icon {
+              --icon-color: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-color);
+              --shape-color: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-shadow-color);
+            }
+            ha-card {
+              --ha-card-background: var(--change-card-{{ states('input_select.teddy_diaper_color') |lower}}-color);
+              --primary-text-color: var(--change-icon-{{ states('input_select.teddy_diaper_color') |lower}}-color);
+              --secondary-text-color: var(--change-secondary-text-color);
+            }
+  - type: custom:time-picker-card
+    entity: input_datetime.teddy_diaper_change_time
+    hour_mode: 12
+    hour_step: 1
+    link_values: true
+    minute_step: 5
+    layout:
+      hour_mode: double
+      align_controls: center
+      name: header
+    hide:
+      seconds: true
+    name: Change Time
+    card_mod:
+      style: |
+        :host {
+          --time-picker-accent-color: var(--change-time-picker-accent-color);
+          --time-picker-elements-background-color: var(--change-time-picker-elements-background-color);
+          --time-picker-off-color: var(--change-time-picker-off-color);
+        }
+  - type: custom:lovelace-multiline-text-input-card
+    entity: input_text.teddy_diaper_notes
+    title: 'Notes:'
+    placeholder_text: Type Notes Here...
+    autosave: true
+    buttons:
+      save: 0
+      paste: 0
+      clear: 0
+    show_success_messages: false
+    max_length: 255
+  - type: custom:layout-card
+    layout_type: custom:grid-layout
+    layout:
+      max_cols: 2
+      grid-template-columns: 33% 67%
+    cards:
+      - type: custom:gap-card
+      - type: custom:button-text-card
+        entity: script.diaper_change
+        icon: fas:poo
+        title: Submit
+        tap_action:
+          action: call-service
+          service: script.diaper_change
+        large: true
+        font_color: white
+        card_mod:
+          style: |
+            :host {
+              --ha-card-background: var(--change-submit-button-color);
+            }
+  - type: markdown
+    content: >-
+      {% set sensor = 'sensor.teddy_last_change' %} {% if is_available(sensor)
+      %}
+        {% set solid = state_attr(sensor, 'solid') %}
+        {% set wet = state_attr(sensor, 'wet') %}
+        {% set color = state_attr(sensor, 'color') %}
+        {% set change_time = state_attr(sensor, 'time') | as_timestamp | timestamp_custom('%-I:%M %p') %}
+        {% set last_updated = states[sensor].last_updated | as_timestamp | timestamp_custom('%-I:%M %p') %}
+        {% if solid and wet %}
+          {% set type = 'solid and wet' %}
+        {% elif solid %} 
+          {% set type = 'solid' %}
+        {% elif wet %}
+          {% set type = 'wet' %}
+        {% endif %}
+
+        <center> 
+
+        <b>Submitted Data: </b><br>
+
+        Teddy was changed out of a {{ color }} {{ type }}
+        diaper at {{ change_time }}. <p>
+
+        Last updated at {{ last_updated }} 
+
+        </center>
+      {% endif %}
+card_mod:
+  style: |
+    :host {
+      --primary-text-color: var(--change-primary-text-color);
+      --mdc-select-fill-color: var(--change-tab-inactive-card-color);
+      --mdc-select-ink-color: var(--change-primary-text-color);
+      --mdc-select-dropdown-icon-color: var(--change-primary-text-color);
+      --secondary-text-color: var(--change-secondary-text-color);
+      --mdc-theme-primary: var(--change-tab-inactive-card-color);
+    }
+    ha-card {
+      overflow: visible !important;
+    }
+    mwc-list-item {
+      --mdc-theme-primary: var(--change-tab-inactive-card-color);
+    }
